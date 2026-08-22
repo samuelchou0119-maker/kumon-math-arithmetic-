@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KUMON 數學大挑戰</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1e3c72;
+            font-family: 'Comic Sans MS', 'Microsoft JhengHei', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        #game-container {
+            width: 100vw;
+            max-width: 800px;
+            height: 100vh;
+            max-height: 500px;
+            background: linear-gradient(to bottom, #72c0ec 0%, #a2d2f1 40%, #5fa052 80%, #3e6d32 100%);
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            border: 4px solid #fff;
+        }
+
+        .tree {
+            position: absolute;
+            bottom: 60px;
+            width: 80px;
+            height: 140px;
+            background: #2e5921;
+            border-radius: 50px 50px 10px 10px;
+            z-index: 1;
+        }
+        .tree::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 10px;
+            width: 60px;
+            height: 100px;
+            background: #417d31;
+            border-radius: 40px;
+        }
+        .tree-left { left: -20px; }
+        .tree-right { right: -20px; }
+
+        #ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 80px;
+            background: #4d8236;
+            border-top: 6px solid #63a346;
+            z-index: 2;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            background: rgba(0, 0, 0, 0.78);
+            backdrop-filter: blur(5px);
+            color: white;
+            transition: opacity 0.3s ease;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        .hidden { display: none !important; }
+
+        h1 {
+            color: #ffe066;
+            font-size: 2.1rem;
+            margin-top: 0;
+            margin-bottom: 8px;
+            text-shadow: 3px 3px 0px #d97706;
+        }
+        p { font-size: 1rem; margin-bottom: 12px; text-shadow: 1px 1px 2px #000; text-align: center; line-height: 1.4; }
+
+        .btn-group { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 460px; }
+        .btn {
+            background: #0284c7;
+            color: white;
+            border: 3px solid #fff;
+            padding: 10px 18px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #0369a1;
+            transition: all 0.1s;
+            text-align: center;
+        }
+        .btn:hover { background: #38bdf8; }
+        .btn:active { transform: translateY(4px); box-shadow: 0 0 0 #0369a1; }
+
+        #question-banner {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fffbeb;
+            border: 4px solid #f59e0b;
+            border-radius: 20px;
+            padding: 6px 25px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1e3a8a;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        #meter-container {
+            position: absolute;
+            left: 15px;
+            top: 70px;
+            width: 28px;
+            height: 280px;
+            background: rgba(255, 255, 255, 0.85);
+            border: 3px solid #1e293b;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 3px;
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        #meter-fill {
+            width: 100%;
+            height: 0%;
+            background: linear-gradient(to top, #ef4444, #eab308, #22c55e);
+            border-radius: 10px;
+            transition: height 0.3s ease-out;
+        }
+        #meter-label {
+            position: absolute;
+            left: 36px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            transform-origin: left top;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+            letter-spacing: 2px;
+            white-space: nowrap;
+        }
+
+        #hud-right {
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 10;
+        }
+        .hud-badge {
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border: 2px solid #38bdf8;
+            text-align: right;
+        }
+
+        #stage {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 5;
+        }
+
+        .bubble {
+            position: absolute;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ffffff, #f97316);
+            border: 3px solid #fff;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 1px 2px 3px rgba(0,0,0,0.6);
+            cursor: pointer;
+            z-index: 6;
+            transition: transform 0.1s;
+        }
+        .bubble:active { transform: scale(0.9); }
+
+        #monster {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            width: 80px;
+            height: 80px;
+            margin-left: -40px;
+            font-size: 70px;
+            line-height: 80px;
+            text-align: center;
+            z-index: 8;
+            cursor: pointer;
+            transition: left 0.35s cubic-bezier(0.25, 1, 0.5, 1), 
+                        bottom 0.35s cubic-bezier(0.25, 1, 0.5, 1), 
+                        transform 0.2s ease;
+            filter: drop-shadow(0 8px 6px rgba(0,0,0,0.3));
+        }
+
+        .monster-pounce { transform: scale(1.3) rotate(-10deg); }
+        .monster-wrong { animation: shake 0.4s ease-in-out; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-12px); }
+            40%, 80% { transform: translateX(12px); }
+        }
+
+        .score-popup {
+            position: absolute;
+            font-size: 1.8rem;
+            font-weight: 900;
+            z-index: 20;
+            pointer-events: none;
+            animation: popAndFade 0.8s ease-out forwards;
+        }
+        .score-plus {
+            color: #facc15;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+        }
+        .score-minus {
+            color: #ef4444;
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+        }
+        @keyframes popAndFade {
+            0% { opacity: 0; transform: translateY(0) scale(0.5); }
+            30% { opacity: 1; transform: translateY(-20px) scale(1.3); }
+            100% { opacity: 0; transform: translateY(-50px) scale(1); }
+        }
+
+        .star-rating {
+            font-size: 2.2rem;
+            margin: 6px 0;
+            letter-spacing: 4px;
+        }
+        .result-card {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 14px;
+            padding: 10px 20px;
+            margin-bottom: 8px;
+            text-align: center;
+            width: 85%;
+            max-width: 380px;
+        }
+        .result-card-gold {
+            background: rgba(254, 240, 138, 0.25) !important;
+            border: 3px solid #facc15 !important;
+            box-shadow: 0 0 20px rgba(250, 204, 21, 0.6);
+            animation: goldGlow 1.5s infinite alternate;
+        }
+        @keyframes goldGlow {
+            0% { box-shadow: 0 0 10px rgba(250, 204, 21, 0.5); }
+            100% { box-shadow: 0 0 25px rgba(250, 204, 21, 0.9); }
+        }
+        .result-item {
+            font-size: 1.05rem;
+            margin: 3px 0;
+        }
+        .result-highlight {
+            color: #facc15;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+        .monster-avatar {
+            font-size: 60px;
+            margin: 2px 0;
+        }
+        .eval-title {
+            font-size: 1.25rem;
+            color: #facc15;
+            font-weight: bold;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+        .eval-comment {
+            font-size: 0.95rem;
+            color: #a7f3d0;
+            margin-bottom: 12px;
+            width: 90%;
+            max-width: 480px;
+            text-align: center;
+            line-height: 1.4;
+            padding: 0 10px;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div class="tree tree-left"></div>
+    <div class="tree tree-right"></div>
+    <div id="ground"></div>
+
+    <div id="question-banner">4 + 5 = ?</div>
+
+    <div id="meter-container">
+        <div id="meter-fill"></div>
+        <div id="meter-label">FEEDING METER</div>
+    </div>
+
+    <div id="hud-right">
+        <div class="hud-badge">⭐ 得分: <span id="score">0</span></div>
+        <div class="hud-badge">🎯 答對: <span id="correct-count">0</span> 題</div>
+        <div class="hud-badge">⏱️ 時間: <span id="timer">60</span>s</div>
+    </div>
+
+    <div id="stage"></div>
+
+    <div id="monster">👾</div>
+
+    <!-- KUMON 開始選單 -->
+    <div id="start-screen" class="screen">
+        <h1>📘 KUMON 數學大挑戰 📘</h1>
+        <p>選擇你的 KUMON 學習級別，開啟心算極速冒險！<br>答對加50分，答錯扣30分，2秒內必定出現正確答案！</p>
+        
+        <div class="btn-group">
+            <button class="btn" onclick="startGame('k_2a')">🌱 2A 級｜加法 1 (和為 10 內)</button>
+            <button class="btn" onclick="startGame('k_a')">🌿 A 級｜和為 30 內加法與基本減法</button>
+            <button class="btn" onclick="startGame('k_b')">☘️ B 級｜和為 100 內加法與多位數加減</button>
+            <button class="btn" onclick="startGame('k_c')">🍀 C 級｜九九乘法、二位數乘法與逆算除法</button>
+            <button class="btn" onclick="startGame('k_d')">🌳 D 級｜二位數乘除法綜合挑戰</button>
+        </div>
+    </div>
+
+    <!-- 結算頁面 -->
+    <div id="end-screen" class="screen hidden">
+        <h1>🎉 挑戰完成！ 🎉</h1>
+        
+        <div id="eval-title" class="eval-title">稱號</div>
+        <div id="eval-avatar" class="monster-avatar">👾</div>
+        <div id="eval-stars" class="star-rating">⭐</div>
+        
+        <div id="result-card" class="result-card">
+            <div class="result-item">正確答對：<span id="final-correct" class="result-highlight">0</span> 題</div>
+            <div class="result-item">獲得總分：<span id="final-score" class="result-highlight">0</span> 分</div>
+        </div>
+
+        <p id="eval-comment" class="eval-comment">評語加載中...</p>
+        
+        <button class="btn" onclick="showStartScreen()">再玩一次</button>
+    </div>
+</div>
+
+<script>
+    let score = 0;
+    let correctCount = 0; 
+    let timeLeft = 60; 
+    let meterProgress = 0; 
+    let gameTimer;
+    let bubbleSpawnTimer;
+    let currentMode = 'k_a';
+    let currentAnswer = 0;
+    let wrongSpawnCount = 0;
+    let lastCorrectSpawnTime = 0;
+
+    let usedQuestions = new Set();
+
+    const container = document.getElementById('game-container');
+    const stage = document.getElementById('stage');
+    const questionBanner = document.getElementById('question-banner');
+    const scoreEl = document.getElementById('score');
+    const correctCountEl = document.getElementById('correct-count');
+    const timerEl = document.getElementById('timer');
+    const meterFill = document.getElementById('meter-fill');
+    const monster = document.getElementById('monster');
+
+    function showStartScreen() {
+        document.getElementById('start-screen').classList.remove('hidden');
+        document.getElementById('end-screen').classList.add('hidden');
+        resetMonsterPosition();
+    }
+
+    function resetMonsterPosition() {
+        monster.style.left = '50%';
+        monster.style.bottom = '30px';
+        monster.textContent = '👾';
+        monster.className = '';
+    }
+
+    function startGame(mode) {
+        currentMode = mode;
+        score = 0;
+        correctCount = 0;
+        timeLeft = 60;
+        meterProgress = 0;
+        wrongSpawnCount = 0;
+        usedQuestions.clear();
+
+        scoreEl.textContent = score;
+        correctCountEl.textContent = correctCount;
+        timerEl.textContent = timeLeft;
+        updateMeter();
+
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('end-screen').classList.add('hidden');
+        stage.innerHTML = '';
+
+        resetMonsterPosition();
+        generateQuestion();
+
+        gameTimer = setInterval(() => {
+            timeLeft--;
+            timerEl.textContent = timeLeft;
+            if (timeLeft <= 0) endGame();
+        }, 1000);
+
+        scheduleNextBubble();
+    }
+
+    function scheduleNextBubble() {
+        if (timeLeft <= 0) return;
+        
+        createBubble();
+
+        const progressRatio = (60 - timeLeft) / 60; 
+        const currentInterval = Math.max(320, 650 - (progressRatio * 330));
+
+        bubbleSpawnTimer = setTimeout(scheduleNextBubble, currentInterval);
+    }
+
+    function updateMeter() {
+        meterFill.style.height = meterProgress + '%';
+    }
+
+    function generateQuestion() {
+        let n1, n2, qKey, str;
+        let maxAttempts = 100;
+        let attempts = 0;
+
+        do {
+            attempts++;
+            let mode = currentMode;
+
+            // --- KUMON 專屬級別題型庫 (依據教材大綱優化) ---
+            if (mode === 'k_2a') {
+                // 2A: 10 以內基礎加法與數字概念
+                n1 = Math.floor(Math.random() * 8) + 1;
+                n2 = Math.floor(Math.random() * (10 - n1)) + 1;
+                currentAnswer = n1 + n2; str = `${n1} + ${n2} = ?`;
+            } else if (mode === 'k_a') {
+                // A 級: 和為 30 以內的加法、20 以內的減法
+                if (Math.random() < 0.5) {
+                    n1 = Math.floor(Math.random() * 20) + 1;
+                    n2 = Math.floor(Math.random() * 10) + 1; 
+                    currentAnswer = n1 + n2; str = `${n1} + ${n2} = ?`;
+                } else {
+                    n1 = Math.floor(Math.random() * 10) + 11; // 11~20
+                    n2 = Math.floor(Math.random() * (n1 - 1)) + 1;
+                    currentAnswer = n1 - n2; str = `${n1} - ${n2} = ?`;
+                }
+            } else if (mode === 'k_b') {
+                // B 級: 和為 100 以內的加法、兩/三位數加減
+                if (Math.random() < 0.5) {
+                    n1 = Math.floor(Math.random() * 80) + 10;
+                    n2 = Math.floor(Math.random() * (100 - n1 - 1)) + 1;
+                    currentAnswer = n1 + n2; str = `${n1} + ${n2} = ?`;
+                } else {
+                    n1 = Math.floor(Math.random() * 80) + 20;
+                    n2 = Math.floor(Math.random() * (n1 - 10)) + 10;
+                    currentAnswer = n1 - n2; str = `${n1} - ${n2} = ?`;
+                }
+            } else if (mode === 'k_c') {
+                // C 級: 九九乘法、二位數乘一位數、九九乘法逆算(無餘數除法)
+                let subType = Math.random();
+                if (subType < 0.4) {
+                    // 九九乘法
+                    n1 = Math.floor(Math.random() * 9) + 1;
+                    n2 = Math.floor(Math.random() * 9) + 1;
+                    currentAnswer = n1 * n2; str = `${n1} × ${n2} = ?`;
+                } else if (subType < 0.7) {
+                    // 二位數乘一位數
+                    n1 = Math.floor(Math.random() * 40) + 10; // 10~49
+                    n2 = Math.floor(Math.random() * 8) + 2;   // 2~9
+                    currentAnswer = n1 * n2; str = `${n1} × ${n2} = ?`;
+                } else {
+                    // 九九乘法逆算 (整除)
+                    let q = Math.floor(Math.random() * 9) + 1;
+                    n2 = Math.floor(Math.random() * 9) + 1;
+                    n1 = q * n2; currentAnswer = q; str = `${n1} ÷ ${n2} = ?`;
+                }
+            } else if (mode === 'k_d') {
+                // D 級: 二位數乘二位數、二位數除法 (遊戲中僅取整除)
+                if (Math.random() < 0.5) {
+                    n1 = Math.floor(Math.random() * 15) + 10; // 10~24
+                    n2 = Math.floor(Math.random() * 15) + 10; // 10~24
+                    currentAnswer = n1 * n2; str = `${n1} × ${n2} = ?`;
+                } else {
+                    // 商為兩位數的除法
+                    let q = Math.floor(Math.random() * 20) + 10; // 商 10~29
+                    n2 = Math.floor(Math.random() * 11) + 2;   // 除數 2~12
+                    n1 = q * n2; currentAnswer = q; str = `${n1} ÷ ${n2} = ?`;
+                }
+            }
+
+            qKey = str;
+        } while (usedQuestions.has(qKey) && attempts < maxAttempts);
+
+        usedQuestions.add(qKey);
+        questionBanner.textContent = str;
+        wrongSpawnCount = 0;
+        lastCorrectSpawnTime = Date.now();
+    }
+
+    function createBubble() {
+        const bubble = document.createElement('div');
+        bubble.classList.add('bubble');
+
+        let val;
+        const now = Date.now();
+        const timeSinceLastCorrect = now - lastCorrectSpawnTime;
+
+        if (timeSinceLastCorrect >= 1800 || wrongSpawnCount >= 2 || Math.random() < 0.6) {
+            val = currentAnswer;
+            wrongSpawnCount = 0;
+            lastCorrectSpawnTime = now;
+        } else {
+            val = currentAnswer + (Math.floor(Math.random() * 7) - 3);
+            if (val <= 0 || val === currentAnswer) val = currentAnswer + 2;
+            wrongSpawnCount++;
+        }
+        bubble.textContent = val;
+
+        const colors = [
+            'radial-gradient(circle at 35% 35%, #ffffff, #f97316)',
+            'radial-gradient(circle at 35% 35%, #ffffff, #3b82f6)',
+            'radial-gradient(circle at 35% 35%, #ffffff, #10b981)',
+            'radial-gradient(circle at 35% 35%, #ffffff, #a855f7)'
+        ];
+        bubble.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+        const minX = 70;
+        const maxX = container.clientWidth - 130;
+        const randomX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
+
+        bubble.style.left = randomX + 'px';
+        bubble.style.top = '-70px';
+
+        stage.appendChild(bubble);
+
+        const timeFactor = (60 - timeLeft) / 60; 
+        const fallSpeed = (Math.random() * 1.0 + 2.5) + (timeFactor * 2.5);
+
+        let topPos = -70;
+
+        const fallInterval = setInterval(() => {
+            if (topPos > container.clientHeight - 130) {
+                clearInterval(fallInterval);
+                if (stage.contains(bubble)) stage.removeChild(bubble);
+            } else {
+                topPos += fallSpeed;
+                bubble.style.top = topPos + 'px';
+            }
+        }, 20);
+
+        bubble.addEventListener('click', (e) => {
+            clearInterval(fallInterval);
+            const clickedVal = parseInt(bubble.textContent);
+
+            const rect = bubble.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+
+            const bubbleX = rect.left - containerRect.left + 30; 
+            const bubbleY = rect.top - containerRect.top + 30;   
+
+            const targetLeft = bubbleX;
+            const targetBottom = containerRect.height - bubbleY - 40;
+
+            if (clickedVal === currentAnswer) {
+                monster.style.left = targetLeft + 'px';
+                monster.style.bottom = targetBottom + 'px';
+                monster.textContent = '😋';
+                monster.classList.add('monster-pounce');
+
+                if (stage.contains(bubble)) stage.removeChild(bubble);
+
+                showScorePopup(bubbleX, bubbleY, '+50', true);
+
+                score += 50;
+                correctCount += 1;
+                scoreEl.textContent = score;
+                correctCountEl.textContent = correctCount;
+                
+                meterProgress = Math.min(100, meterProgress + 3.33);
+                updateMeter();
+
+                generateQuestion();
+
+                setTimeout(() => {
+                    monster.classList.remove('monster-pounce');
+                    monster.textContent = '👾';
+                    monster.style.left = '50%';
+                    monster.style.bottom = '30px';
+                }, 400);
+
+            } else {
+                monster.textContent = '😵';
+                monster.classList.add('monster-wrong');
+
+                if (stage.contains(bubble)) stage.removeChild(bubble);
+
+                showScorePopup(bubbleX, bubbleY, '-30', false);
+
+                score = Math.max(0, score - 30);
+                scoreEl.textContent = score;
+                
+                meterProgress = Math.max(0, meterProgress - 15);
+                updateMeter();
+
+                setTimeout(() => {
+                    monster.classList.remove('monster-wrong');
+                    monster.textContent = '👾';
+                }, 400);
+            }
+        });
+    }
+
+    function showScorePopup(x, y, text, isPositive) {
+        const popup = document.createElement('div');
+        popup.classList.add('score-popup');
+        popup.classList.add(isPositive ? 'score-plus' : 'score-minus');
+        popup.textContent = text;
+        popup.style.left = (x - 25) + 'px';
+        popup.style.top = (y - 20) + 'px';
+        stage.appendChild(popup);
+
+        setTimeout(() => {
+            if (stage.contains(popup)) stage.removeChild(popup);
+        }, 800);
+    }
+
+    function endGame() {
+        clearInterval(gameTimer);
+        clearTimeout(bubbleSpawnTimer);
+
+        document.getElementById('final-score').textContent = score;
+        document.getElementById('final-correct').textContent = correctCount;
+
+        const starsEl = document.getElementById('eval-stars');
+        const avatarEl = document.getElementById('eval-avatar');
+        const titleEl = document.getElementById('eval-title');
+        const commentEl = document.getElementById('eval-comment');
+        const resultCard = document.getElementById('result-card');
+
+        resultCard.classList.remove('result-card-gold');
+
+        if (correctCount >= 27 || meterProgress >= 100) {
+            titleEl.textContent = '🏆 傳說中的數學神童';
+            starsEl.textContent = '🌟🌟🌟';
+            avatarEl.textContent = '🥳';
+            commentEl.textContent = '「傳說級表現！你已經完美征服了這個 KUMON 級別，快去挑戰更高的級別吧！」';
+            resultCard.classList.add('result-card-gold');
+        } else if (correctCount >= 18) {
+            titleEl.textContent = '⭐️⭐️⭐️ 算術大師';
+            starsEl.textContent = '⭐⭐⭐';
+            avatarEl.textContent = '👑';
+            commentEl.textContent = '「太神啦！你的心算速度完全掌握了這個級別的重點！」';
+        } else if (correctCount >= 9) {
+            titleEl.textContent = '⭐️⭐️ 數學探險家';
+            starsEl.textContent = '⭐⭐☆';
+            avatarEl.textContent = '😎';
+            commentEl.textContent = '「太厲害了！在這個級別中表現得非常優秀喔！」';
+        } else {
+            titleEl.textContent = '⭐️ 新手小試身手';
+            starsEl.textContent = '⭐☆☆';
+            avatarEl.textContent = '👾';
+            commentEl.textContent = '「熱身完成！多練習幾次，你一定能順利晉級更高的 KUMON 級別！」';
+        }
+
+        document.getElementById('end-screen').classList.remove('hidden');
+    }
+</script>
+
+</body>
+</html>
