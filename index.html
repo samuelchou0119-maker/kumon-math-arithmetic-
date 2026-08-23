@@ -2,13 +2,14 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KUMON 數學大挑戰</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KUMON 數學大挑戰 - 平板極速觸控版</title>
     <style>
         * {
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
+            touch-action: manipulation; /* 消除觸控延遲與防止縮放 */
         }
         body {
             margin: 0;
@@ -118,7 +119,7 @@
             border: 4px solid #f59e0b;
             border-radius: 20px;
             padding: 6px 25px;
-            font-size: 1.8rem;
+            font-size: 1.9rem;
             font-weight: bold;
             color: #1e3a8a;
             box-shadow: 0 6px 12px rgba(0,0,0,0.2);
@@ -188,26 +189,27 @@
             z-index: 5;
         }
 
+        /* 放大泡泡與數字，適應平板手指點擊 */
         .bubble {
             position: absolute;
-            width: 58px;
-            height: 58px;
+            width: 76px;  /* 從 58px 放大到 76px */
+            height: 76px;
             border-radius: 50%;
             background: radial-gradient(circle at 35% 35%, #ffffff, #f97316);
-            border: 3px solid #fff;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+            border: 4px solid #fff;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.3);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.4rem;
+            font-size: 2.0rem; /* 從 1.4rem 放大到 2.0rem */
             font-weight: 900;
             color: #fff;
-            text-shadow: 1px 2px 3px rgba(0,0,0,0.6);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
             cursor: pointer;
             z-index: 6;
-            transition: transform 0.1s;
+            transition: transform 0.08s;
         }
-        .bubble:active { transform: scale(0.9); }
+        .bubble:active { transform: scale(0.85); }
 
         #monster {
             position: absolute;
@@ -221,9 +223,9 @@
             text-align: center;
             z-index: 8;
             cursor: pointer;
-            transition: left 0.35s cubic-bezier(0.25, 1, 0.5, 1), 
-                        bottom 0.35s cubic-bezier(0.25, 1, 0.5, 1), 
-                        transform 0.2s ease;
+            transition: left 0.25s cubic-bezier(0.25, 1, 0.5, 1), 
+                        bottom 0.25s cubic-bezier(0.25, 1, 0.5, 1), 
+                        transform 0.15s ease;
             filter: drop-shadow(0 8px 6px rgba(0,0,0,0.3));
         }
 
@@ -237,7 +239,7 @@
 
         .score-popup {
             position: absolute;
-            font-size: 1.8rem;
+            font-size: 2.0rem;
             font-weight: 900;
             z-index: 20;
             pointer-events: none;
@@ -462,25 +464,21 @@
             attempts++;
             let mode = currentMode;
 
-            // --- KUMON 專屬級別題型庫 (依據教材大綱優化) ---
             if (mode === 'k_2a') {
-                // 2A: 10 以內基礎加法與數字概念
                 n1 = Math.floor(Math.random() * 8) + 1;
                 n2 = Math.floor(Math.random() * (10 - n1)) + 1;
                 currentAnswer = n1 + n2; str = `${n1} + ${n2} = ?`;
             } else if (mode === 'k_a') {
-                // A 級: 和為 30 以內的加法、20 以內的減法
                 if (Math.random() < 0.5) {
                     n1 = Math.floor(Math.random() * 20) + 1;
                     n2 = Math.floor(Math.random() * 10) + 1; 
                     currentAnswer = n1 + n2; str = `${n1} + ${n2} = ?`;
                 } else {
-                    n1 = Math.floor(Math.random() * 10) + 11; // 11~20
+                    n1 = Math.floor(Math.random() * 10) + 11;
                     n2 = Math.floor(Math.random() * (n1 - 1)) + 1;
                     currentAnswer = n1 - n2; str = `${n1} - ${n2} = ?`;
                 }
             } else if (mode === 'k_b') {
-                // B 級: 和為 100 以內的加法、兩/三位數加減
                 if (Math.random() < 0.5) {
                     n1 = Math.floor(Math.random() * 80) + 10;
                     n2 = Math.floor(Math.random() * (100 - n1 - 1)) + 1;
@@ -491,34 +489,28 @@
                     currentAnswer = n1 - n2; str = `${n1} - ${n2} = ?`;
                 }
             } else if (mode === 'k_c') {
-                // C 級: 九九乘法、二位數乘一位數、九九乘法逆算(無餘數除法)
                 let subType = Math.random();
                 if (subType < 0.4) {
-                    // 九九乘法
                     n1 = Math.floor(Math.random() * 9) + 1;
                     n2 = Math.floor(Math.random() * 9) + 1;
                     currentAnswer = n1 * n2; str = `${n1} × ${n2} = ?`;
                 } else if (subType < 0.7) {
-                    // 二位數乘一位數
-                    n1 = Math.floor(Math.random() * 40) + 10; // 10~49
-                    n2 = Math.floor(Math.random() * 8) + 2;   // 2~9
+                    n1 = Math.floor(Math.random() * 40) + 10;
+                    n2 = Math.floor(Math.random() * 8) + 2;
                     currentAnswer = n1 * n2; str = `${n1} × ${n2} = ?`;
                 } else {
-                    // 九九乘法逆算 (整除)
                     let q = Math.floor(Math.random() * 9) + 1;
                     n2 = Math.floor(Math.random() * 9) + 1;
                     n1 = q * n2; currentAnswer = q; str = `${n1} ÷ ${n2} = ?`;
                 }
             } else if (mode === 'k_d') {
-                // D 級: 二位數乘二位數、二位數除法 (遊戲中僅取整除)
                 if (Math.random() < 0.5) {
-                    n1 = Math.floor(Math.random() * 15) + 10; // 10~24
-                    n2 = Math.floor(Math.random() * 15) + 10; // 10~24
+                    n1 = Math.floor(Math.random() * 15) + 10;
+                    n2 = Math.floor(Math.random() * 15) + 10;
                     currentAnswer = n1 * n2; str = `${n1} × ${n2} = ?`;
                 } else {
-                    // 商為兩位數的除法
-                    let q = Math.floor(Math.random() * 20) + 10; // 商 10~29
-                    n2 = Math.floor(Math.random() * 11) + 2;   // 除數 2~12
+                    let q = Math.floor(Math.random() * 20) + 10;
+                    n2 = Math.floor(Math.random() * 11) + 2;
                     n1 = q * n2; currentAnswer = q; str = `${n1} ÷ ${n2} = ?`;
                 }
             }
@@ -559,19 +551,20 @@
         ];
         bubble.style.background = colors[Math.floor(Math.random() * colors.length)];
 
+        // 適應大泡泡的靠邊範圍
         const minX = 70;
-        const maxX = container.clientWidth - 130;
+        const maxX = container.clientWidth - 150;
         const randomX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
 
         bubble.style.left = randomX + 'px';
-        bubble.style.top = '-70px';
+        bubble.style.top = '-80px';
 
         stage.appendChild(bubble);
 
         const timeFactor = (60 - timeLeft) / 60; 
         const fallSpeed = (Math.random() * 1.0 + 2.5) + (timeFactor * 2.5);
 
-        let topPos = -70;
+        let topPos = -80;
 
         const fallInterval = setInterval(() => {
             if (topPos > container.clientHeight - 130) {
@@ -583,15 +576,18 @@
             }
         }, 20);
 
-        bubble.addEventListener('click', (e) => {
+        // 核心觸控處理函式（消除 300ms 延遲）
+        let handleHit = (e) => {
+            if (e.type === 'touchstart') e.preventDefault(); // 阻止滾動與預設延遲
+            
             clearInterval(fallInterval);
             const clickedVal = parseInt(bubble.textContent);
 
             const rect = bubble.getBoundingClientRect();
             const containerRect = container.getBoundingClientRect();
 
-            const bubbleX = rect.left - containerRect.left + 30; 
-            const bubbleY = rect.top - containerRect.top + 30;   
+            const bubbleX = rect.left - containerRect.left + 38; 
+            const bubbleY = rect.top - containerRect.top + 38;   
 
             const targetLeft = bubbleX;
             const targetBottom = containerRect.height - bubbleY - 40;
@@ -642,7 +638,11 @@
                     monster.textContent = '👾';
                 }, 400);
             }
-        });
+        };
+
+        // 同時綁定觸摸與點擊，確保平板萬無一失
+        bubble.addEventListener('touchstart', handleHit, { passive: false });
+        bubble.addEventListener('click', handleHit);
     }
 
     function showScorePopup(x, y, text, isPositive) {
