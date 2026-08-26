@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KUMON 數學大挑戰 - 平板極速觸控版</title>
+    <title>KUMON 數感奇幻大冒險 (6A - A 級)</title>
     <style>
         * {
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
-            touch-action: manipulation; /* 消除觸控延遲與防止縮放 */
+            touch-action: manipulation;
         }
         body {
             margin: 0;
             padding: 0;
-            background: #1e3c72;
+            background: #0f172a;
             font-family: 'Comic Sans MS', 'Microsoft JhengHei', sans-serif;
             display: flex;
             justify-content: center;
@@ -24,680 +24,1910 @@
         }
         #game-container {
             width: 100vw;
-            max-width: 800px;
+            max-width: 850px;
             height: 100vh;
-            max-height: 500px;
-            background: linear-gradient(to bottom, #72c0ec 0%, #a2d2f1 40%, #5fa052 80%, #3e6d32 100%);
+            max-height: 560px;
+            background: linear-gradient(to bottom, #1e293b, #334155);
             position: relative;
             overflow: hidden;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            border: 4px solid #fff;
+            border-radius: 20px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+            border: 4px solid #38bdf8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .tree {
-            position: absolute;
-            bottom: 60px;
-            width: 80px;
-            height: 140px;
-            background: #2e5921;
-            border-radius: 50px 50px 10px 10px;
-            z-index: 1;
+        /* 頂部 HUD */
+        #hud {
+            width: 100%;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.85);
+            border-bottom: 2px solid #0284c7;
+            z-index: 10;
         }
-        .tree::before {
+        .hud-badge {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: bold;
+            background: #0369a1;
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: 2px solid #38bdf8;
+        }
+        .exit-btn {
+            background: #ef4444;
+            color: white;
+            border: 2px solid #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 2px 0 #991b1b;
+        }
+        .exit-btn:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+
+        /* 題目與視覺講習區 */
+        #interactive-area {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 8px 10px;
+        }
+
+        /* 頂部輕量說明標題 */
+        #mode-title-badge {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #38bdf8;
+            margin-bottom: 4px;
+            text-shadow: 1px 1px 3px #000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        #question-text {
+            font-size: clamp(1.8rem, 4.2vw, 2.6rem);
+            font-weight: 900;
+            color: #fef08a;
+            text-shadow: 3px 3px 6px #000;
+            margin: 2px 0 8px 0;
+            text-align: center;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            max-width: 98%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 灰底虛線視覺框 */
+        #visual-guide {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            min-height: 140px;
+            min-width: 320px;
+            max-width: 95%;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 10px 24px;
+            border: 2px dashed rgba(255, 255, 255, 0.25);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+            overflow-x: auto;
+        }
+
+        /* 灰底框內巨型算式題目 */
+        .framed-math-question {
+            font-size: 3.8rem;
+            font-weight: 900;
+            color: #fef08a;
+            text-shadow: 3px 3px 6px #000;
+            letter-spacing: 2px;
+            text-align: center;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        /* 動動腦提示標籤 */
+        #bottom-tip-label {
+            font-size: 1.65rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px #000;
+            padding: 8px 22px;
+            border-radius: 16px;
+            margin-top: 18px;
+            background: rgba(15, 23, 42, 0.75);
+            border: 2px solid #38bdf8;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        /* 5A 專屬：再聽一次按鈕 */
+        .listen-btn-mini {
+            background: linear-gradient(to bottom, #f59e0b, #d97706);
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 8px 24px;
+            border-radius: 20px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #b45309;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            animation: pulseMini 1.8s infinite;
+        }
+        @keyframes pulseMini {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .listen-btn-mini:active { transform: translateY(2px); box-shadow: none; }
+
+        /* 4A 火車造型 */
+        .train-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            padding-bottom: 6px;
+        }
+        .train-engine-wrapper {
+            display: flex;
+            align-items: flex-end;
+            position: relative;
+            margin-right: 4px;
+        }
+        .train-cowcatcher {
+            width: 14px;
+            height: 22px;
+            background: repeating-linear-gradient(45deg, #1e293b, #1e293b 3px, #f59e0b 3px, #f59e0b 6px);
+            clip-path: polygon(0 100%, 100% 0, 100% 100%);
+            margin-bottom: 2px;
+        }
+        .train-engine {
+            width: 82px;
+            height: 75px;
+            background: linear-gradient(to bottom, #dc2626, #991b1b);
+            border: 3px solid #fff;
+            border-radius: 12px 18px 4px 6px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            box-shadow: 0 6px 10px rgba(0,0,0,0.5);
+        }
+        .train-engine::after {
             content: '';
             position: absolute;
-            top: -20px;
-            left: 10px;
-            width: 60px;
-            height: 100px;
-            background: #417d31;
-            border-radius: 40px;
+            top: -6px;
+            left: 12px;
+            width: 42px;
+            height: 8px;
+            background: #f59e0b;
+            border: 2px solid #fff;
+            border-radius: 6px;
         }
-        .tree-left { left: -20px; }
-        .tree-right { right: -20px; }
-
-        #ground {
+        .train-chimney {
             position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 80px;
-            background: #4d8236;
-            border-top: 6px solid #63a346;
-            z-index: 2;
+            top: -22px;
+            left: 14px;
+            width: 16px;
+            height: 20px;
+            background: #1e293b;
+            border: 2px solid #fff;
+            border-radius: 4px 4px 0 0;
+        }
+        .train-chimney::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -3px;
+            width: 20px;
+            height: 5px;
+            background: #f59e0b;
+            border: 1px solid #fff;
+            border-radius: 3px;
+        }
+        .train-chimney::after {
+            content: '💨';
+            position: absolute;
+            top: -26px;
+            left: -4px;
+            font-size: 1.4rem;
+            animation: puff 1.2s infinite;
+        }
+        @keyframes puff {
+            0% { opacity: 0.2; transform: translateY(2px) scale(0.7); }
+            50% { opacity: 1; transform: translateY(-8px) scale(1.1); }
+            100% { opacity: 0; transform: translateY(-16px) scale(1.4); }
+        }
+        .train-engine .window {
+            width: 28px;
+            height: 24px;
+            background: #38bdf8;
+            border: 2px solid #fff;
+            border-radius: 6px;
+            position: absolute;
+            right: 8px;
+            top: 14px;
+        }
+        .train-headlight {
+            position: absolute;
+            left: -8px;
+            top: 26px;
+            width: 10px;
+            height: 12px;
+            background: #fde047;
+            border: 2px solid #fff;
+            border-radius: 4px 0 0 4px;
+            box-shadow: -4px 0 8px #fde047;
+        }
+        .train-wheels {
+            display: flex;
+            gap: 8px;
+            position: absolute;
+            bottom: -11px;
+        }
+        .wheel {
+            width: 22px;
+            height: 22px;
+            background: radial-gradient(circle, #f59e0b 30%, #1e293b 31%);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .train-coupler {
+            width: 12px;
+            height: 6px;
+            background: #94a3b8;
+            margin-bottom: 14px;
+            border-radius: 2px;
+            border: 1px solid #fff;
+        }
+        .train-car {
+            width: 68px;
+            height: 68px;
+            background: linear-gradient(to bottom, #0284c7, #0369a1);
+            border: 3px solid #fff;
+            border-radius: 14px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+        }
+        .train-car.blank {
+            background: linear-gradient(to bottom, #f59e0b, #d97706);
+            border-color: #fde047;
+            animation: pulseCar 1.2s infinite;
+        }
+        @keyframes pulseCar {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); }
         }
 
+        /* 6A 點點 */
+        .count-item {
+            width: 65px;
+            height: 65px;
+            background: transparent;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 3.2rem;
+            cursor: pointer;
+            transition: transform 0.15s;
+            position: relative;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+        }
+        .count-item:hover {
+            transform: scale(1.1);
+        }
+        .count-item.counted {
+            transform: scale(0.95);
+            opacity: 0.85;
+        }
+        .count-badge {
+            position: absolute;
+            bottom: -6px;
+            right: -2px;
+            background: #22c55e;
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        /* 3A 卡牌 */
+        .seq-card {
+            background: linear-gradient(to bottom, #10b981, #047857);
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 14px;
+            border: 3px solid #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        .seq-card.blank {
+            background: linear-gradient(to bottom, #f59e0b, #d97706);
+            border-color: #fde047;
+            animation: pulseCar 1.2s infinite;
+        }
+
+        /* 答對 / 答錯 反饋彈窗 */
+        .feedback-pop {
+            position: absolute;
+            font-size: 2.8rem;
+            font-weight: 900;
+            z-index: 80;
+            pointer-events: none;
+            padding: 10px 24px;
+            border-radius: 20px;
+            border: 4px solid #fff;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            animation: popFade 0.6s ease-out forwards;
+        }
+        .feedback-correct {
+            background: #22c55e;
+            color: #ffffff;
+            text-shadow: 2px 2px 0 #15803d;
+        }
+        .feedback-wrong {
+            background: #ef4444;
+            color: #ffffff;
+            text-shadow: 2px 2px 0 #991b1b;
+        }
+        @keyframes popFade {
+            0% { opacity: 0; transform: scale(0.4) translateY(20px); }
+            40% { opacity: 1; transform: scale(1.15) translateY(-10px); }
+            100% { opacity: 0; transform: scale(1) translateY(-40px); }
+        }
+
+        /* 底部選項按鈕區 */
+        #options-container {
+            width: 100%;
+            padding: 12px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            background: rgba(15, 23, 42, 0.9);
+        }
+        .option-btn {
+            background: #0284c7;
+            color: white;
+            border: 3px solid #fff;
+            min-width: 85px;
+            padding: 10px 18px;
+            font-size: 1.7rem;
+            font-weight: bold;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #0369a1;
+            transition: all 0.1s;
+            text-align: center;
+        }
+        .option-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #0369a1;
+        }
+
+        .animal-option-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+        .animal-option-btn:active { transform: scale(0.9); }
+        .animal-avatar {
+            font-size: 2.3rem;
+            margin-bottom: -10px;
+            z-index: 2;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+        }
+        .animal-card {
+            background: linear-gradient(to bottom, #a855f7, #7e22ce);
+            color: #fde047;
+            border: 3px solid #fff;
+            padding: 8px 18px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border-radius: 16px;
+            box-shadow: 0 5px 0 #581c87;
+            text-shadow: 1px 1px 2px #000;
+            min-width: 78px;
+            text-align: center;
+        }
+
+        /* 選單與對話框畫面 */
         .screen {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
+            background: #0f172a;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 50;
-            background: rgba(0, 0, 0, 0.78);
-            backdrop-filter: blur(5px);
-            color: white;
-            transition: opacity 0.3s ease;
             padding: 15px;
-            overflow-y: auto;
         }
         .hidden { display: none !important; }
 
-        h1 {
-            color: #ffe066;
-            font-size: 2.1rem;
-            margin-top: 0;
-            margin-bottom: 8px;
-            text-shadow: 3px 3px 0px #d97706;
-        }
-        p { font-size: 1rem; margin-bottom: 12px; text-shadow: 1px 1px 2px #000; text-align: center; line-height: 1.4; }
-
-        .btn-group { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 460px; }
-        .btn {
-            background: #0284c7;
-            color: white;
-            border: 3px solid #fff;
-            padding: 10px 18px;
-            font-size: 1.05rem;
-            font-weight: bold;
-            border-radius: 30px;
-            cursor: pointer;
-            box-shadow: 0 4px 0 #0369a1;
-            transition: all 0.1s;
-            text-align: center;
-        }
-        .btn:hover { background: #38bdf8; }
-        .btn:active { transform: translateY(4px); box-shadow: 0 0 0 #0369a1; }
-
-        #question-banner {
-            position: absolute;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #fffbeb;
-            border: 4px solid #f59e0b;
-            border-radius: 20px;
-            padding: 6px 25px;
-            font-size: 1.9rem;
-            font-weight: bold;
-            color: #1e3a8a;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-            z-index: 10;
-        }
-
-        #meter-container {
-            position: absolute;
-            left: 15px;
-            top: 70px;
-            width: 28px;
-            height: 280px;
-            background: rgba(255, 255, 255, 0.85);
-            border: 3px solid #1e293b;
-            border-radius: 15px;
+        h1 { color: #38bdf8; margin-bottom: 6px; font-size: 2rem; text-shadow: 2px 2px 0 #000; }
+        
+        .menu-top-bar {
             display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 3px;
-            z-index: 10;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
-        #meter-fill {
+            justify-content: space-between;
+            align-items: center;
             width: 100%;
-            height: 0%;
-            background: linear-gradient(to top, #ef4444, #eab308, #22c55e);
-            border-radius: 10px;
-            transition: height 0.3s ease-out;
-        }
-        #meter-label {
-            position: absolute;
-            left: 36px;
-            top: 50%;
-            transform: translateY(-50%) rotate(-90deg);
-            transform-origin: left top;
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: white;
-            text-shadow: 1px 1px 2px black;
-            letter-spacing: 2px;
-            white-space: nowrap;
+            max-width: 700px;
+            margin-bottom: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 8px 16px;
+            border-radius: 18px;
         }
 
-        #hud-right {
-            position: absolute;
-            top: 12px;
-            right: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            z-index: 10;
+        .setting-label {
+            color: #cbd5e1;
+            font-weight: bold;
+            font-size: 0.9rem;
         }
-        .hud-badge {
-            background: rgba(0, 0, 0, 0.6);
-            color: #fff;
-            padding: 4px 12px;
-            border-radius: 20px;
+        .select-input {
+            background: #1e293b;
+            color: #fde047;
+            border: 2px solid #38bdf8;
+            padding: 4px 10px;
+            border-radius: 10px;
             font-size: 0.95rem;
             font-weight: bold;
+            outline: none;
+        }
+        .text-input {
+            background: #1e293b;
+            color: #fff;
             border: 2px solid #38bdf8;
-            text-align: right;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            width: 110px;
+            outline: none;
         }
 
-        #stage {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 5;
+        .edit-name-btn {
+            background: #f59e0b;
+            color: white;
+            border: 1px solid #fff;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        .edit-name-btn:active { transform: scale(0.95); }
+
+        .confirm-name-btn {
+            background: #22c55e;
+            color: white;
+            border: 1px solid #fff;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        .confirm-name-btn:active { transform: scale(0.95); }
+
+        .db-btn-top {
+            background: #0284c7;
+            color: white;
+            border: 2px solid #fff;
+            padding: 6px 12px;
+            border-radius: 14px;
+            font-weight: bold;
+            font-size: 0.88rem;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #0369a1;
+        }
+        .chart-btn-top {
+            background: #a855f7;
+            color: white;
+            border: 2px solid #fff;
+            padding: 6px 12px;
+            border-radius: 14px;
+            font-weight: bold;
+            font-size: 0.88rem;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #7e22ce;
+        }
+        .db-btn-top:active, .chart-btn-top:active { transform: translateY(2px); box-shadow: none; }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 700px;
+        }
+        .menu-btn {
+            background: #1e293b;
+            color: #f1f5f9;
+            border: 2px solid #38bdf8;
+            padding: 8px 12px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.2s;
+        }
+        .menu-btn:hover { background: #0369a1; }
+        .menu-btn.selected-level {
+            background: #0284c7;
+            border-color: #fde047;
+        }
+        .menu-btn span { color: #fde047; display: block; font-size: 0.8rem; margin-top: 2px; }
+
+        .bottom-control-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 700px;
+            margin-top: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 8px 16px;
+            border-radius: 18px;
         }
 
-        /* 放大泡泡與數字，適應平板手指點擊 */
-        .bubble {
-            position: absolute;
-            width: 76px;  /* 從 58px 放大到 76px */
-            height: 76px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 35% 35%, #ffffff, #f97316);
-            border: 4px solid #fff;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.3);
+        .time-setting {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .time-btn {
+            background: #334155;
+            color: #fff;
+            border: 2px solid #94a3b8;
+            padding: 5px 14px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .time-btn.active {
+            background: #eab308;
+            color: #000;
+            border-color: #fff;
+        }
+
+        .start-game-btn {
+            background: #22c55e;
+            color: white;
+            border: 2px solid #fff;
+            padding: 6px 20px;
+            border-radius: 16px;
+            font-weight: bold;
+            font-size: 1.05rem;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #15803d;
+        }
+        .start-game-btn:active { transform: translateY(2px); box-shadow: none; }
+
+        /* 資料庫歷史成績畫面 */
+        .filter-bar-card {
+            width: 100%;
+            max-width: 760px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 8px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: flex-start;
+            gap: 15px;
+            align-items: center;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+        .db-table-container {
+            width: 100%;
+            max-width: 760px;
+            max-height: 280px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #fff;
+            text-align: center;
+        }
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+        th { background: #0369a1; color: #fde047; position: sticky; top: 0; }
+
+        .chart-card {
+            width: 100%;
+            max-width: 760px;
+            background: rgba(15, 23, 42, 0.7);
+            border: 2px solid #a855f7;
+            border-radius: 18px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .chart-controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+        canvas {
+            width: 100%;
+            height: 230px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 12px;
+        }
+
+        .view-wrong-btn {
+            background: #ef4444;
+            color: #fff;
+            border: 1px solid #fff;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .view-wrong-btn:hover { background: #dc2626; }
+
+        #confirm-dialog, #edit-name-dialog {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 2.0rem; /* 從 1.4rem 放大到 2.0rem */
-            font-weight: 900;
-            color: #fff;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
-            cursor: pointer;
-            z-index: 6;
-            transition: transform 0.08s;
+            z-index: 100;
         }
-        .bubble:active { transform: scale(0.85); }
 
-        #monster {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            width: 80px;
-            height: 80px;
-            margin-left: -40px;
-            font-size: 70px;
-            line-height: 80px;
+        #wrong-detail-dialog {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.82);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .dialog-card {
+            background: #1e293b;
+            border: 3px solid #38bdf8;
+            border-radius: 20px;
+            padding: 20px 25px;
             text-align: center;
-            z-index: 8;
-            cursor: pointer;
-            transition: left 0.25s cubic-bezier(0.25, 1, 0.5, 1), 
-                        bottom 0.25s cubic-bezier(0.25, 1, 0.5, 1), 
-                        transform 0.15s ease;
-            filter: drop-shadow(0 8px 6px rgba(0,0,0,0.3));
-        }
-
-        .monster-pounce { transform: scale(1.3) rotate(-10deg); }
-        .monster-wrong { animation: shake 0.4s ease-in-out; }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-12px); }
-            40%, 80% { transform: translateX(12px); }
-        }
-
-        .score-popup {
-            position: absolute;
-            font-size: 2.0rem;
-            font-weight: 900;
-            z-index: 20;
-            pointer-events: none;
-            animation: popAndFade 0.8s ease-out forwards;
-        }
-        .score-plus {
-            color: #facc15;
-            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
-        }
-        .score-minus {
-            color: #ef4444;
-            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
-        }
-        @keyframes popAndFade {
-            0% { opacity: 0; transform: translateY(0) scale(0.5); }
-            30% { opacity: 1; transform: translateY(-20px) scale(1.3); }
-            100% { opacity: 0; transform: translateY(-50px) scale(1); }
-        }
-
-        .star-rating {
-            font-size: 2.2rem;
-            margin: 6px 0;
-            letter-spacing: 4px;
-        }
-        .result-card {
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 14px;
-            padding: 10px 20px;
-            margin-bottom: 8px;
-            text-align: center;
-            width: 85%;
-            max-width: 380px;
-        }
-        .result-card-gold {
-            background: rgba(254, 240, 138, 0.25) !important;
-            border: 3px solid #facc15 !important;
-            box-shadow: 0 0 20px rgba(250, 204, 21, 0.6);
-            animation: goldGlow 1.5s infinite alternate;
-        }
-        @keyframes goldGlow {
-            0% { box-shadow: 0 0 10px rgba(250, 204, 21, 0.5); }
-            100% { box-shadow: 0 0 25px rgba(250, 204, 21, 0.9); }
-        }
-        .result-item {
-            font-size: 1.05rem;
-            margin: 3px 0;
-        }
-        .result-highlight {
-            color: #facc15;
-            font-weight: bold;
-            font-size: 1.25rem;
-        }
-        .monster-avatar {
-            font-size: 60px;
-            margin: 2px 0;
-        }
-        .eval-title {
-            font-size: 1.25rem;
-            color: #facc15;
-            font-weight: bold;
-            margin-bottom: 4px;
-            text-align: center;
-        }
-        .eval-comment {
-            font-size: 0.95rem;
-            color: #a7f3d0;
-            margin-bottom: 12px;
+            color: white;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.8);
+            max-width: 520px;
             width: 90%;
-            max-width: 480px;
-            text-align: center;
-            line-height: 1.4;
-            padding: 0 10px;
-            word-wrap: break-word;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
         }
+        .dialog-btns {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .dialog-btn {
+            padding: 8px 20px;
+            font-weight: bold;
+            font-size: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 2px solid #fff;
+        }
+        .btn-confirm { background: #22c55e; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-cancel { background: #64748b; color: white; }
+
+        .wrong-list {
+            max-height: 240px;
+            overflow-y: auto;
+            text-align: left;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .wrong-item {
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+            font-size: 0.95rem;
+        }
+        .wrong-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <div class="tree tree-left"></div>
-    <div class="tree tree-right"></div>
-    <div id="ground"></div>
-
-    <div id="question-banner">4 + 5 = ?</div>
-
-    <div id="meter-container">
-        <div id="meter-fill"></div>
-        <div id="meter-label">FEEDING METER</div>
-    </div>
-
-    <div id="hud-right">
+    <div id="hud">
+        <div id="player-badge" class="hud-badge">👤 玩家: 玩家 1</div>
+        <div id="level-badge" class="hud-badge">級別: 6A</div>
         <div class="hud-badge">⭐ 得分: <span id="score">0</span></div>
-        <div class="hud-badge">🎯 答對: <span id="correct-count">0</span> 題</div>
         <div class="hud-badge">⏱️ 時間: <span id="timer">60</span>s</div>
+        <button class="exit-btn" onclick="openExitDialog()">🚪 退出</button>
     </div>
 
-    <div id="stage"></div>
+    <div id="interactive-area">
+        <div id="mode-title-badge" class="hidden">🪄 極速心算對決 ⚡</div>
+        <div id="question-text">數一數，總共有幾個？</div>
+        <div id="visual-guide"></div>
+        <div id="bottom-tip-label" class="hidden">🧠 動動腦，快速選出答案吧！</div>
+    </div>
 
-    <div id="monster">👾</div>
+    <div id="options-container"></div>
 
-    <!-- KUMON 開始選單 -->
+    <!-- 主選單畫面 -->
     <div id="start-screen" class="screen">
-        <h1>📘 KUMON 數學大挑戰 📘</h1>
-        <p>選擇你的 KUMON 學習級別，開啟心算極速冒險！<br>答對加50分，答錯扣30分，2秒內必定出現正確答案！</p>
+        <h1>📘 KUMON 數感奇幻大冒險 📘</h1>
         
-        <div class="btn-group">
-            <button class="btn" onclick="startGame('k_2a')">🌱 2A 級｜加法 1 (和為 10 內)</button>
-            <button class="btn" onclick="startGame('k_a')">🌿 A 級｜和為 30 內加法與基本減法</button>
-            <button class="btn" onclick="startGame('k_b')">☘️ B 級｜和為 100 內加法與多位數加減</button>
-            <button class="btn" onclick="startGame('k_c')">🍀 C 級｜九九乘法、二位數乘法與逆算除法</button>
-            <button class="btn" onclick="startGame('k_d')">🌳 D 級｜二位數乘除法綜合挑戰</button>
+        <div class="menu-top-bar">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="setting-label">👤 玩家：</span>
+                <select id="player-select" class="select-input" onchange="onPlayerSelectChange()">
+                    <!-- 動態初始化包含歷史玩過的玩家 -->
+                </select>
+                
+                <button id="edit-player-btn" class="edit-name-btn" onclick="openRenameDialog()">✏️ 修改名字</button>
+
+                <div id="custom-input-group" class="hidden" style="display: flex; gap: 5px; align-items: center;">
+                    <input type="text" id="custom-name-input" class="text-input" placeholder="輸入名字">
+                    <button class="confirm-name-btn" onclick="confirmCustomName()">確定</button>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+                <button class="db-btn-top" onclick="openDatabase()">🏆 歷史成績資料庫</button>
+                <button class="chart-btn-top" onclick="openChartScreen()">📈 學習成長走勢圖</button>
+            </div>
+        </div>
+
+        <div class="menu-grid">
+            <button id="lvl-btn-6A" class="menu-btn selected-level" onclick="selectLevel('6A')">🔴 6A 級｜數數與數量點數<span>水果動物數量點數（1~10）</span></button>
+            <button id="lvl-btn-5A" class="menu-btn" onclick="selectLevel('5A')">🟠 5A 級｜聽音辨數與認讀<span>聽語音找對應的數字（1~50）</span></button>
+            <button id="lvl-btn-4A" class="menu-btn" onclick="selectLevel('4A')">🟡 4A 級｜數字火車與數序填空<span>填補火車車廂缺漏的數字</span></button>
+            <button id="lvl-btn-3A" class="menu-btn" onclick="selectLevel('3A')">🟢 3A 級｜1~120 數序與 +1~+3<span>大數字數序與下三個數跳數</span></button>
+            <button id="lvl-btn-2A" class="menu-btn" onclick="selectLevel('2A')">🔵 2A 級｜+4 ~ +10 心算熟練<span>進位與組合數感訓練</span></button>
+            <button id="lvl-btn-A" class="menu-btn" onclick="selectLevel('A')">🟣 A 級｜20以內加減法綜合<span>心算快速對決與減法</span></button>
+        </div>
+
+        <div class="bottom-control-bar">
+            <div class="time-setting">
+                <span class="setting-label">⏱️ 遊戲時間：</span>
+                <button id="time-30" class="time-btn" onclick="setGameDuration(30)">30 秒</button>
+                <button id="time-60" class="time-btn active" onclick="setGameDuration(60)">60 秒</button>
+            </div>
+
+            <button class="start-game-btn" onclick="startGame(currentLevel)">🚀 開始遊戲</button>
         </div>
     </div>
 
-    <!-- 結算頁面 -->
-    <div id="end-screen" class="screen hidden">
-        <h1>🎉 挑戰完成！ 🎉</h1>
+    <!-- 1. 獨立【歷史成績資料庫】畫面 -->
+    <div id="db-screen" class="screen hidden">
+        <h1 style="font-size: 1.8rem; margin-bottom: 8px;">🏆 歷史成績資料庫 🏆</h1>
         
-        <div id="eval-title" class="eval-title">稱號</div>
-        <div id="eval-avatar" class="monster-avatar">👾</div>
-        <div id="eval-stars" class="star-rating">⭐</div>
-        
-        <div id="result-card" class="result-card">
-            <div class="result-item">正確答對：<span id="final-correct" class="result-highlight">0</span> 題</div>
-            <div class="result-item">獲得總分：<span id="final-score" class="result-highlight">0</span> 分</div>
+        <div class="filter-bar-card">
+            <div>
+                👤 篩選玩家：
+                <select id="db-filter-player" class="select-input" onchange="renderDatabaseTable()">
+                    <!-- 動態載入 -->
+                </select>
+            </div>
+            <div>
+                🎯 篩選級別：
+                <select id="db-filter-level" class="select-input" onchange="renderDatabaseTable()">
+                    <option value="ALL">全部級別</option>
+                    <option value="6A">6A 級</option>
+                    <option value="5A">5A 級</option>
+                    <option value="4A">4A 級</option>
+                    <option value="3A">3A 級</option>
+                    <option value="2A">2A 級</option>
+                    <option value="A">A 級</option>
+                </select>
+            </div>
         </div>
 
-        <p id="eval-comment" class="eval-comment">評語加載中...</p>
+        <div class="db-table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>遊玩日期時間</th>
+                        <th>玩家姓名</th>
+                        <th>挑戰級別</th>
+                        <th>答題數</th>
+                        <th>獲得分數 (時間)</th>
+                        <th>錯題紀錄</th>
+                    </tr>
+                </thead>
+                <tbody id="db-tbody">
+                    <!-- 動態載入成績紀錄 -->
+                </tbody>
+            </table>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <button id="clear-selected-btn" class="option-btn" style="background: #ef4444; font-size: 0.95rem; min-width: auto; padding: 6px 14px;" onclick="openClearSelectedPlayerDialog()">🗑️ 刪除該名玩家資料</button>
+            <button class="option-btn" style="background: #64748b; font-size: 0.85rem; min-width: auto; padding: 6px 10px;" onclick="openClearAllDbDialog()">⚠️ 清空全部所有人</button>
+            <button class="option-btn" style="font-size: 0.95rem; min-width: auto; padding: 6px 16px;" onclick="showMenu()">返回主選單</button>
+        </div>
+    </div>
+
+    <!-- 2. 獨立【學習成長走勢圖】畫面 -->
+    <div id="chart-screen" class="screen hidden">
+        <h1 style="font-size: 1.8rem; margin-bottom: 8px;">📈 學習成長走勢圖 📈</h1>
         
-        <button class="btn" onclick="showStartScreen()">再玩一次</button>
+        <div class="chart-card">
+            <div class="chart-controls">
+                <div>
+                    👤 選擇玩家：
+                    <select id="chart-player-select" class="select-input" onchange="onChartPlayerChange()">
+                        <!-- 動態載入 -->
+                    </select>
+                    ｜ 🎯 選擇級別：
+                    <select id="chart-level-select" class="select-input" onchange="updateChartData()">
+                        <option value="6A">6A 級</option>
+                        <option value="5A">5A 級</option>
+                        <option value="4A">4A 級</option>
+                        <option value="3A">3A 級</option>
+                        <option value="2A">2A 級</option>
+                        <option value="A">A 級</option>
+                    </select>
+                </div>
+                <div style="font-size: 0.88rem; font-weight: bold; color: #fde047;">
+                    🟡 心算強度成長走勢（換算等效每分鐘得分）
+                </div>
+            </div>
+            <canvas id="trend-canvas" width="720" height="220"></canvas>
+        </div>
+
+        <button class="option-btn" style="font-size: 1rem; min-width: auto; padding: 6px 20px;" onclick="showMenu()">返回主選單</button>
+    </div>
+
+    <!-- 結算畫面 -->
+    <div id="end-screen" class="screen hidden">
+        <h1>🎉 關卡完成！ 🎉</h1>
+        <p id="result-desc" style="font-size: 1.4rem; color: #fde047; margin: 18px 0;"></p>
+        <div style="display: flex; gap: 15px;">
+            <button class="option-btn" style="background: #22c55e;" onclick="replayNextGame()">▶️ 繼續遊戲 (同級別)</button>
+            <button class="option-btn" style="background: #64748b;" onclick="showMenu()">🏠 返回主選單</button>
+        </div>
+    </div>
+
+    <!-- 修改名字彈窗 -->
+    <div id="edit-name-dialog" class="hidden">
+        <div class="dialog-card">
+            <h3 style="color: #fde047; margin-top:0;">✏️ 修改玩家名字</h3>
+            <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 15px;">修改後，資料庫與走勢圖中舊的成績紀錄也會同步更名喔！</p>
+            <input type="text" id="rename-input" class="text-input" style="width: 80%; font-size: 1.2rem; padding: 8px; text-align: center; margin: 0 auto;" placeholder="輸入新名字">
+            <div class="dialog-btns">
+                <button class="dialog-btn btn-confirm" onclick="saveNewPlayerName()">確定修改</button>
+                <button class="dialog-btn btn-cancel" onclick="closeRenameDialog()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 錯題詳細彈窗 -->
+    <div id="wrong-detail-dialog" class="hidden">
+        <div class="dialog-card">
+            <h3 id="wrong-dialog-title" style="color: #fde047; margin-top:0;">🔍 錯題分析明細</h3>
+            <div id="wrong-list-content" class="wrong-list">
+                <!-- 動態注入錯題內容 -->
+            </div>
+            <div class="dialog-btns">
+                <button class="dialog-btn btn-cancel" onclick="closeWrongDetailDialog()">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通用確認/警告彈窗 -->
+    <div id="confirm-dialog" class="hidden">
+        <div class="dialog-card">
+            <h3 id="dialog-title">確定要執行動作嗎？</h3>
+            <p id="dialog-desc" style="color: #cbd5e1; font-size: 0.95rem;">相關數據將被清理！</p>
+            <div class="dialog-btns">
+                <button id="dialog-confirm-btn" class="dialog-btn btn-danger">確定刪除</button>
+                <button class="dialog-btn btn-cancel" onclick="closeConfirmDialog()">取消</button>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
+    let currentLevel = '6A';
+    let selectedDuration = 60;
+    let currentPlayerName = '玩家 1';
     let score = 0;
-    let correctCount = 0; 
-    let timeLeft = 60; 
-    let meterProgress = 0; 
+    let correctCount = 0;
+    let timeLeft = 60;
     let gameTimer;
-    let bubbleSpawnTimer;
-    let currentMode = 'k_a';
     let currentAnswer = 0;
-    let wrongSpawnCount = 0;
-    let lastCorrectSpawnTime = 0;
+    let countProgress = 0;
+    let totalItemsToCount = 0;
+    let totalAttemptedCount = 0;
+    let gameStartTime = '';
 
-    let usedQuestions = new Set();
+    let currentQuestionPrompt = '';
+    let wrongRecords = [];
 
-    const container = document.getElementById('game-container');
-    const stage = document.getElementById('stage');
-    const questionBanner = document.getElementById('question-banner');
-    const scoreEl = document.getElementById('score');
-    const correctCountEl = document.getElementById('correct-count');
-    const timerEl = document.getElementById('timer');
-    const meterFill = document.getElementById('meter-fill');
-    const monster = document.getElementById('monster');
+    const itemsPool = [
+        { name: "蘋果", icon: "🍎" },
+        { name: "香蕉", icon: "🍌" },
+        { name: "草莓", icon: "🍓" },
+        { name: "葡萄", icon: "🍇" },
+        { name: "小狗", icon: "🐶" },
+        { name: "貓咪", icon: "🐱" },
+        { name: "兔兔", icon: "🐰" },
+        { name: "貓熊", icon: "🐼" },
+        { name: "青蛙", icon: "🐸" },
+        { name: "獅子", icon: "🦁" }
+    ];
 
-    function showStartScreen() {
+    const animalsPool = ["🐱", "🐶", "🐰", "🐼", "🦊", "🐯", "🦁", "🐨"];
+
+    let femaleVoices = [];
+    let maleVoices = [];
+
+    let audioCtx = null;
+    function playChimeSound(isCorrect) {
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (isCorrect) {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                osc.start(now);
+                osc.stop(now + 0.35);
+            } else {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(220, now);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            }
+        } catch(e) { console.log(e); }
+    }
+
+    function initVoices() {
+        if ('speechSynthesis' in window) {
+            const loadVoice = () => {
+                const voices = window.speechSynthesis.getVoices();
+                const twVoices = voices.filter(v => v.lang === 'zh-TW' || v.lang === 'zh_TW');
+                const fallbackZh = voices.filter(v => v.lang.includes('zh') && !v.lang.includes('HK') && !v.lang.includes('hk'));
+
+                const targetVoices = twVoices.length > 0 ? twVoices : fallbackZh;
+
+                femaleVoices = targetVoices.filter(v => v.name.includes('Mei-Jia') || v.name.includes('HanHan') || v.name.includes('Xiaoxiao') || v.name.includes('Female') || v.name.includes('Google'));
+                maleVoices = targetVoices.filter(v => v.name.includes('Yun-Jhe') || v.name.includes('Kangkang') || v.name.includes('Yunxi') || v.name.includes('Male'));
+
+                if (femaleVoices.length === 0) femaleVoices = targetVoices;
+                if (maleVoices.length === 0) maleVoices = targetVoices;
+            };
+            loadVoice();
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = loadVoice;
+            }
+        }
+    }
+    initVoices();
+
+    function speak(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-TW';
+
+            const isFemale = Math.random() < 0.5;
+            const voiceList = isFemale ? femaleVoices : maleVoices;
+
+            if (voiceList.length > 0) {
+                utterance.voice = voiceList[Math.floor(Math.random() * voiceList.length)];
+            }
+
+            utterance.rate = 0.9;
+            utterance.pitch = isFemale ? 1.15 : 0.95;
+
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    function stopSpeech() {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+    }
+
+    function initPlayerOptions() {
+        const select = document.getElementById('player-select');
+        select.innerHTML = '';
+
+        let defaultPlayers = Array.from({length: 10}, (_, i) => `玩家 ${i + 1}`);
+
+        let history = JSON.parse(localStorage.getItem('kumon_scores') || '[]');
+        let historyPlayers = history.map(item => item.player).filter(p => p && p.trim() !== '');
+
+        let customPlayers = JSON.parse(localStorage.getItem('kumon_custom_players') || '[]');
+
+        let allUniquePlayers = Array.from(new Set([...defaultPlayers, ...historyPlayers, ...customPlayers]));
+
+        allUniquePlayers.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p;
+            opt.textContent = `👤 ${p}`;
+            select.appendChild(opt);
+        });
+
+        const customOpt = document.createElement('option');
+        customOpt.value = 'custom';
+        customOpt.textContent = '✍️ 新增自訂名字...';
+        select.appendChild(customOpt);
+
+        let lastPlayer = localStorage.getItem('kumon_last_player') || '玩家 1';
+        if (allUniquePlayers.includes(lastPlayer)) {
+            select.value = lastPlayer;
+            currentPlayerName = lastPlayer;
+        } else {
+            select.value = '玩家 1';
+            currentPlayerName = '玩家 1';
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', initPlayerOptions);
+
+    function selectLevel(lvl) {
+        currentLevel = lvl;
+        document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('selected-level'));
+        const activeBtn = document.getElementById(`lvl-btn-${lvl}`);
+        if (activeBtn) activeBtn.classList.add('selected-level');
+    }
+
+    function onPlayerSelectChange() {
+        const select = document.getElementById('player-select');
+        const customGroup = document.getElementById('custom-input-group');
+        
+        if (select.value === 'custom') {
+            customGroup.classList.remove('hidden');
+            document.getElementById('custom-name-input').focus();
+        } else {
+            customGroup.classList.add('hidden');
+            currentPlayerName = select.value;
+            localStorage.setItem('kumon_last_player', currentPlayerName);
+        }
+    }
+
+    function confirmCustomName() {
+        const customInput = document.getElementById('custom-name-input');
+        const nameVal = customInput.value.trim();
+        
+        if (nameVal === '') {
+            alert('請輸入名字喔！');
+            return;
+        }
+
+        currentPlayerName = nameVal;
+
+        let customPlayers = JSON.parse(localStorage.getItem('kumon_custom_players') || '[]');
+        if (!customPlayers.includes(nameVal)) {
+            customPlayers.push(nameVal);
+            localStorage.setItem('kumon_custom_players', JSON.stringify(customPlayers));
+        }
+        localStorage.setItem('kumon_last_player', currentPlayerName);
+
+        initPlayerOptions();
+        document.getElementById('player-select').value = nameVal;
+
+        document.getElementById('custom-input-group').classList.add('hidden');
+        customInput.value = '';
+    }
+
+    function openRenameDialog() {
+        document.getElementById('rename-input').value = currentPlayerName;
+        document.getElementById('edit-name-dialog').classList.remove('hidden');
+    }
+
+    function closeRenameDialog() {
+        document.getElementById('edit-name-dialog').classList.add('hidden');
+    }
+
+    function saveNewPlayerName() {
+        const newName = document.getElementById('rename-input').value.trim();
+        if (newName === '') {
+            alert('名字不能空白喔！');
+            return;
+        }
+
+        const oldName = currentPlayerName;
+        if (oldName === newName) {
+            closeRenameDialog();
+            return;
+        }
+
+        let history = JSON.parse(localStorage.getItem('kumon_scores') || '[]');
+        history.forEach(item => {
+            if (item.player === oldName) {
+                item.player = newName;
+            }
+        });
+        localStorage.setItem('kumon_scores', JSON.stringify(history));
+
+        let customPlayers = JSON.parse(localStorage.getItem('kumon_custom_players') || '[]');
+        let index = customPlayers.indexOf(oldName);
+        if (index !== -1) customPlayers[index] = newName;
+        else customPlayers.push(newName);
+        localStorage.setItem('kumon_custom_players', JSON.stringify(customPlayers));
+
+        currentPlayerName = newName;
+        localStorage.setItem('kumon_last_player', newName);
+
+        initPlayerOptions();
+        closeRenameDialog();
+    }
+
+    function showFeedback(isCorrect) {
+        const area = document.getElementById('interactive-area');
+        const pop = document.createElement('div');
+        pop.className = `feedback-pop ${isCorrect ? 'feedback-correct' : 'feedback-wrong'}`;
+        pop.textContent = isCorrect ? "✨ 正確！" : "🤔 再想想！";
+        area.appendChild(pop);
+
+        setTimeout(() => {
+            if (area.contains(pop)) area.removeChild(pop);
+        }, 600);
+    }
+
+    function setGameDuration(seconds) {
+        selectedDuration = seconds;
+        document.getElementById('time-30').classList.toggle('active', seconds === 30);
+        document.getElementById('time-60').classList.toggle('active', seconds === 60);
+    }
+
+    function showMenu() {
+        stopSpeech();
+        
+        document.getElementById('mode-title-badge').classList.add('hidden');
+        document.getElementById('bottom-tip-label').classList.add('hidden');
+        document.getElementById('visual-guide').innerHTML = '';
+        document.getElementById('options-container').innerHTML = '';
+
         document.getElementById('start-screen').classList.remove('hidden');
+        document.getElementById('db-screen').classList.add('hidden');
+        document.getElementById('chart-screen').classList.add('hidden');
         document.getElementById('end-screen').classList.add('hidden');
-        resetMonsterPosition();
+        document.getElementById('confirm-dialog').classList.add('hidden');
+        document.getElementById('wrong-detail-dialog').classList.add('hidden');
+        document.getElementById('edit-name-dialog').classList.add('hidden');
+        clearInterval(gameTimer);
     }
 
-    function resetMonsterPosition() {
-        monster.style.left = '50%';
-        monster.style.bottom = '30px';
-        monster.textContent = '👾';
-        monster.className = '';
+    /* 修正：退回主選單彈窗按鈕文字精準為「確定退出」 */
+    function openExitDialog() {
+        document.getElementById('dialog-title').textContent = "確定要退出遊戲嗎？";
+        document.getElementById('dialog-desc').textContent = "中途退出將不會紀錄此局成績喔！";
+        
+        const confirmBtn = document.getElementById('dialog-confirm-btn');
+        confirmBtn.textContent = "確定退出";
+        confirmBtn.onclick = confirmExit;
+        
+        document.getElementById('confirm-dialog').classList.remove('hidden');
     }
 
-    function startGame(mode) {
-        currentMode = mode;
+    /* 刪除指定玩家數據提醒彈窗 */
+    function openClearSelectedPlayerDialog() {
+        const selectedPlayer = document.getElementById('db-filter-player').value;
+        if (selectedPlayer === 'ALL') {
+            alert('請先在左上方選單選擇「特定玩家」再來清除其個人資料喔！');
+            return;
+        }
+
+        document.getElementById('dialog-title').textContent = `確定要刪除【${selectedPlayer}】的所有資料嗎？`;
+        document.getElementById('dialog-desc').textContent = `只會刪除【${selectedPlayer}】個人的歷史成績，其他人不受影響。刪除後無法復原！`;
+        
+        const confirmBtn = document.getElementById('dialog-confirm-btn');
+        confirmBtn.textContent = "確定刪除";
+        confirmBtn.onclick = () => deleteSelectedPlayerData(selectedPlayer);
+        
+        document.getElementById('confirm-dialog').classList.remove('hidden');
+    }
+
+    /* 清空所有人數據提醒彈窗 */
+    function openClearAllDbDialog() {
+        document.getElementById('dialog-title').textContent = "⚠️ 警告：確定要清空全體所有人資料嗎？";
+        document.getElementById('dialog-desc').textContent = "這將會永久刪除系統中「所有學生」的歷史成績紀錄與自訂名字，無法復原！";
+        
+        const confirmBtn = document.getElementById('dialog-confirm-btn');
+        confirmBtn.textContent = "確定刪除";
+        confirmBtn.onclick = clearAllHistory;
+        
+        document.getElementById('confirm-dialog').classList.remove('hidden');
+    }
+
+    function closeConfirmDialog() {
+        document.getElementById('confirm-dialog').classList.add('hidden');
+    }
+
+    function closeWrongDetailDialog() {
+        document.getElementById('wrong-detail-dialog').classList.add('hidden');
+    }
+
+    function confirmExit() {
+        closeConfirmDialog();
+        clearInterval(gameTimer);
+        showMenu();
+    }
+
+    function deleteSelectedPlayerData(targetPlayer) {
+        let history = JSON.parse(localStorage.getItem('kumon_scores') || '[]');
+        let updatedHistory = history.filter(item => item.player !== targetPlayer);
+        localStorage.setItem('kumon_scores', JSON.stringify(updatedHistory));
+
+        let customPlayers = JSON.parse(localStorage.getItem('kumon_custom_players') || '[]');
+        let updatedCustom = customPlayers.filter(p => p !== targetPlayer);
+        localStorage.setItem('kumon_custom_players', JSON.stringify(updatedCustom));
+
+        closeConfirmDialog();
+        initPlayerOptions();
+        populateDbPlayerSelect();
+        renderDatabaseTable();
+    }
+
+    function clearAllHistory() {
+        localStorage.removeItem('kumon_scores');
+        localStorage.removeItem('kumon_custom_players');
+        closeConfirmDialog();
+        initPlayerOptions();
+        populateDbPlayerSelect();
+        renderDatabaseTable();
+    }
+
+    function startGame(level) {
+        currentLevel = level;
         score = 0;
         correctCount = 0;
-        timeLeft = 60;
-        meterProgress = 0;
-        wrongSpawnCount = 0;
-        usedQuestions.clear();
+        totalAttemptedCount = 0;
+        timeLeft = selectedDuration;
+        wrongRecords = [];
+        
+        const now = new Date();
+        gameStartTime = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-        scoreEl.textContent = score;
-        correctCountEl.textContent = correctCount;
-        timerEl.textContent = timeLeft;
-        updateMeter();
+        document.getElementById('player-badge').textContent = `👤 玩家: ${currentPlayerName}`;
+        document.getElementById('level-badge').textContent = `級別: ${level}`;
+        document.getElementById('score').textContent = score;
+        document.getElementById('timer').textContent = timeLeft;
 
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('end-screen').classList.add('hidden');
-        stage.innerHTML = '';
-
-        resetMonsterPosition();
-        generateQuestion();
 
         gameTimer = setInterval(() => {
             timeLeft--;
-            timerEl.textContent = timeLeft;
+            document.getElementById('timer').textContent = timeLeft;
             if (timeLeft <= 0) endGame();
         }, 1000);
 
-        scheduleNextBubble();
+        nextQuestion();
     }
 
-    function scheduleNextBubble() {
-        if (timeLeft <= 0) return;
-        
-        createBubble();
-
-        const progressRatio = (60 - timeLeft) / 60; 
-        const currentInterval = Math.max(320, 650 - (progressRatio * 330));
-
-        bubbleSpawnTimer = setTimeout(scheduleNextBubble, currentInterval);
+    function replayNextGame() {
+        document.getElementById('end-screen').classList.add('hidden');
+        startGame(currentLevel);
     }
 
-    function updateMeter() {
-        meterFill.style.height = meterProgress + '%';
-    }
+    function nextQuestion() {
+        const guide = document.getElementById('visual-guide');
+        const qText = document.getElementById('question-text');
+        const modeTitle = document.getElementById('mode-title-badge');
+        const tipLabel = document.getElementById('bottom-tip-label');
+        const options = document.getElementById('options-container');
 
-    function generateQuestion() {
-        let n1, n2, qKey, str;
-        let maxAttempts = 100;
-        let attempts = 0;
+        guide.innerHTML = '';
+        options.innerHTML = '';
+        modeTitle.classList.add('hidden');
+        tipLabel.classList.add('hidden');
+        qText.classList.remove('hidden');
 
-        do {
-            attempts++;
-            let mode = currentMode;
+        if (currentLevel === '6A') {
+            totalItemsToCount = Math.floor(Math.random() * 8) + 2;
+            currentAnswer = totalItemsToCount;
+            countProgress = 0;
 
-            if (mode === 'k_2a') {
-                n1 = Math.floor(Math.random() * 8) + 1;
-                n2 = Math.floor(Math.random() * (10 - n1)) + 1;
-                currentAnswer = n1 + n2; str = `${n1} + ${n2} = ?`;
-            } else if (mode === 'k_a') {
-                if (Math.random() < 0.5) {
-                    n1 = Math.floor(Math.random() * 20) + 1;
-                    n2 = Math.floor(Math.random() * 10) + 1; 
-                    currentAnswer = n1 + n2; str = `${n1} + ${n2} = ?`;
+            const currentItem = itemsPool[Math.floor(Math.random() * itemsPool.length)];
+
+            currentQuestionPrompt = `數一數有幾個${currentItem.name}？`;
+            qText.textContent = currentQuestionPrompt;
+            speak(currentQuestionPrompt);
+
+            for (let i = 1; i <= totalItemsToCount; i++) {
+                const item = document.createElement('div');
+                item.className = 'count-item';
+                item.textContent = currentItem.icon;
+                item.onclick = () => {
+                    if (!item.querySelector('.count-badge')) {
+                        countProgress++;
+                        const badge = document.createElement('div');
+                        badge.className = 'count-badge';
+                        badge.textContent = `✔️ ${countProgress}`;
+                        item.appendChild(badge);
+                        item.classList.add('counted');
+                        speak(countProgress.toString());
+                    }
+                };
+                guide.appendChild(item);
+            }
+
+            generateOptions(currentAnswer);
+
+        } else if (currentLevel === '5A') {
+            currentAnswer = Math.floor(Math.random() * 45) + 1;
+
+            currentQuestionPrompt = `聽語音找到數字：${currentAnswer}`;
+            qText.textContent = "聽語音，找到正確的數字！";
+            speak(`請找到數字 ${currentAnswer}`);
+
+            let choices = [currentAnswer];
+            while (choices.length < 4) {
+                let wrong = currentAnswer + (Math.floor(Math.random() * 7) - 3);
+                if (wrong > 0 && !choices.includes(wrong)) choices.push(wrong);
+            }
+            choices.sort(() => Math.random() - 0.5);
+
+            choices.forEach((val, index) => {
+                const animal = animalsPool[index % animalsPool.length];
+                const btn = document.createElement('div');
+                btn.className = 'animal-option-btn';
+                btn.innerHTML = `
+                    <div class="animal-avatar">${animal}</div>
+                    <div class="animal-card">${val}</div>
+                `;
+                btn.onclick = () => checkAnswer(val);
+                guide.appendChild(btn);
+            });
+
+            options.innerHTML = `
+                <button class="listen-btn-mini" onclick="speak('請找到數字 ${currentAnswer}')">
+                    📢 點我再聽一次
+                </button>
+            `;
+
+        } else if (currentLevel === '4A') {
+            const startNum = Math.floor(Math.random() * 35) + 1;
+            const blankIndex = Math.floor(Math.random() * 3) + 1;
+            currentAnswer = startNum + blankIndex;
+
+            currentQuestionPrompt = `火車填空：${startNum}, ${startNum+1}, ${startNum+2}, ${startNum+3} (缺 ${currentAnswer})`;
+            qText.textContent = "數字火車：缺少的數字是什麼？";
+            speak("缺少的數字是什麼？");
+
+            let trainHTML = `
+                <div class="train-container">
+                    <div class="train-engine-wrapper">
+                        <div class="train-cowcatcher"></div>
+                        <div class="train-engine">
+                            <div class="train-chimney"></div>
+                            <div class="window"></div>
+                            <div class="train-headlight"></div>
+                            <div class="train-wheels">
+                                <div class="wheel"></div>
+                                <div class="wheel"></div>
+                            </div>
+                        </div>
+                    </div>
+            `;
+
+            for (let i = 0; i < 4; i++) {
+                const num = startNum + i;
+                trainHTML += `<div class="train-coupler"></div>`;
+
+                if (num === currentAnswer) {
+                    trainHTML += `
+                        <div class="train-car blank">
+                            ?
+                            <div class="train-wheels">
+                                <div class="wheel"></div>
+                                <div class="wheel"></div>
+                            </div>
+                        </div>
+                    `;
                 } else {
-                    n1 = Math.floor(Math.random() * 10) + 11;
-                    n2 = Math.floor(Math.random() * (n1 - 1)) + 1;
-                    currentAnswer = n1 - n2; str = `${n1} - ${n2} = ?`;
-                }
-            } else if (mode === 'k_b') {
-                if (Math.random() < 0.5) {
-                    n1 = Math.floor(Math.random() * 80) + 10;
-                    n2 = Math.floor(Math.random() * (100 - n1 - 1)) + 1;
-                    currentAnswer = n1 + n2; str = `${n1} + ${n2} = ?`;
-                } else {
-                    n1 = Math.floor(Math.random() * 80) + 20;
-                    n2 = Math.floor(Math.random() * (n1 - 10)) + 10;
-                    currentAnswer = n1 - n2; str = `${n1} - ${n2} = ?`;
-                }
-            } else if (mode === 'k_c') {
-                let subType = Math.random();
-                if (subType < 0.4) {
-                    n1 = Math.floor(Math.random() * 9) + 1;
-                    n2 = Math.floor(Math.random() * 9) + 1;
-                    currentAnswer = n1 * n2; str = `${n1} × ${n2} = ?`;
-                } else if (subType < 0.7) {
-                    n1 = Math.floor(Math.random() * 40) + 10;
-                    n2 = Math.floor(Math.random() * 8) + 2;
-                    currentAnswer = n1 * n2; str = `${n1} × ${n2} = ?`;
-                } else {
-                    let q = Math.floor(Math.random() * 9) + 1;
-                    n2 = Math.floor(Math.random() * 9) + 1;
-                    n1 = q * n2; currentAnswer = q; str = `${n1} ÷ ${n2} = ?`;
-                }
-            } else if (mode === 'k_d') {
-                if (Math.random() < 0.5) {
-                    n1 = Math.floor(Math.random() * 15) + 10;
-                    n2 = Math.floor(Math.random() * 15) + 10;
-                    currentAnswer = n1 * n2; str = `${n1} × ${n2} = ?`;
-                } else {
-                    let q = Math.floor(Math.random() * 20) + 10;
-                    n2 = Math.floor(Math.random() * 11) + 2;
-                    n1 = q * n2; currentAnswer = q; str = `${n1} ÷ ${n2} = ?`;
+                    trainHTML += `
+                        <div class="train-car">
+                            ${num}
+                            <div class="train-wheels">
+                                <div class="wheel"></div>
+                                <div class="wheel"></div>
+                            </div>
+                        </div>
+                    `;
                 }
             }
 
-            qKey = str;
-        } while (usedQuestions.has(qKey) && attempts < maxAttempts);
+            trainHTML += `</div>`;
+            guide.innerHTML = trainHTML;
 
-        usedQuestions.add(qKey);
-        questionBanner.textContent = str;
-        wrongSpawnCount = 0;
-        lastCorrectSpawnTime = Date.now();
-    }
+            generateOptions(currentAnswer);
 
-    function createBubble() {
-        const bubble = document.createElement('div');
-        bubble.classList.add('bubble');
+        } else if (currentLevel === '3A') {
+            const isSeqQuestion = Math.random() < 0.5;
 
-        let val;
-        const now = Date.now();
-        const timeSinceLastCorrect = now - lastCorrectSpawnTime;
+            if (isSeqQuestion) {
+                const startNum = Math.floor(Math.random() * 115) + 1;
+                const blankIndex = Math.floor(Math.random() * 3) + 1;
+                currentAnswer = startNum + blankIndex;
 
-        if (timeSinceLastCorrect >= 1800 || wrongSpawnCount >= 2 || Math.random() < 0.6) {
-            val = currentAnswer;
-            wrongSpawnCount = 0;
-            lastCorrectSpawnTime = now;
-        } else {
-            val = currentAnswer + (Math.floor(Math.random() * 7) - 3);
-            if (val <= 0 || val === currentAnswer) val = currentAnswer + 2;
-            wrongSpawnCount++;
+                currentQuestionPrompt = `數序填空：${startNum}, ${startNum+1}, ${startNum+2}, ${startNum+3} (缺 ${currentAnswer})`;
+                qText.textContent = "數序填空：缺少的數字是什麼？";
+                speak("缺少的數字是什麼？");
+
+                let html = '';
+                for (let i = 0; i < 4; i++) {
+                    const num = startNum + i;
+                    if (i > 0) html += `<span style="color:#fde047; font-size:1.8rem; font-weight:bold;">➔</span>`;
+                    
+                    if (num === currentAnswer) {
+                        html += `<div class="seq-card blank">?</div>`;
+                    } else {
+                        html += `<div class="seq-card">${num}</div>`;
+                    }
+                }
+                guide.innerHTML = html;
+
+            } else {
+                const addNum = Math.floor(Math.random() * 3) + 1;
+                const baseNum = Math.floor(Math.random() * 30) + 1;
+                currentAnswer = baseNum + addNum;
+
+                currentQuestionPrompt = `${baseNum} + ${addNum} = ?`;
+                
+                let tipText = addNum === 1 ? "下一個數" : (addNum === 2 ? "下兩個數" : "下三個數");
+                let mascot = addNum === 1 ? "🐰" : (addNum === 2 ? "🐸" : "🦘");
+                speak(`${baseNum} 加 ${addNum}，往後數${tipText}`);
+
+                modeTitle.innerHTML = `
+                    <span class="seq-card" style="font-size: 1.3rem; padding: 4px 12px;">${baseNum}</span>
+                    <span style="color:#fde047; font-size: 1.3rem;">${mascot} (${tipText}) 👉</span>
+                    <span class="seq-card blank" style="font-size: 1.3rem; padding: 4px 12px;">?</span>
+                `;
+                modeTitle.classList.remove('hidden');
+                qText.classList.add('hidden');
+
+                guide.innerHTML = `<div class="framed-math-question">${currentQuestionPrompt}</div>`;
+            }
+
+            generateOptions(currentAnswer);
+
+        } else if (currentLevel === '2A' || currentLevel === 'A') {
+            let n1, n2, isSub = false;
+
+            modeTitle.innerHTML = `🪄 極速心算對決 ⚡`;
+            modeTitle.classList.remove('hidden');
+            tipLabel.classList.remove('hidden');
+            qText.classList.add('hidden');
+
+            if (currentLevel === '2A') {
+                n1 = Math.floor(Math.random() * 12) + 1;
+                n2 = Math.floor(Math.random() * 6) + 4;
+                currentAnswer = n1 + n2;
+                currentQuestionPrompt = `${n1} + ${n2} = ?`;
+                speak(`${n1} 加 ${n2}`);
+            } else {
+                isSub = Math.random() < 0.5;
+                if (isSub) {
+                    n1 = Math.floor(Math.random() * 10) + 10;
+                    n2 = Math.floor(Math.random() * 9) + 1;
+                    currentAnswer = n1 - n2;
+                    currentQuestionPrompt = `${n1} - ${n2} = ?`;
+                    speak(`${n1} 減 ${n2}`);
+                } else {
+                    n1 = Math.floor(Math.random() * 10) + 5;
+                    n2 = Math.floor(Math.random() * 9) + 1;
+                    currentAnswer = n1 + n2;
+                    currentQuestionPrompt = `${n1} + ${n2} = ?`;
+                    speak(`${n1} 加 ${n2}`);
+                }
+            }
+
+            guide.innerHTML = `<div class="framed-math-question">${currentQuestionPrompt}</div>`;
+            generateOptions(currentAnswer);
         }
-        bubble.textContent = val;
-
-        const colors = [
-            'radial-gradient(circle at 35% 35%, #ffffff, #f97316)',
-            'radial-gradient(circle at 35% 35%, #ffffff, #3b82f6)',
-            'radial-gradient(circle at 35% 35%, #ffffff, #10b981)',
-            'radial-gradient(circle at 35% 35%, #ffffff, #a855f7)'
-        ];
-        bubble.style.background = colors[Math.floor(Math.random() * colors.length)];
-
-        // 適應大泡泡的靠邊範圍
-        const minX = 70;
-        const maxX = container.clientWidth - 150;
-        const randomX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
-
-        bubble.style.left = randomX + 'px';
-        bubble.style.top = '-80px';
-
-        stage.appendChild(bubble);
-
-        const timeFactor = (60 - timeLeft) / 60; 
-        const fallSpeed = (Math.random() * 1.0 + 2.5) + (timeFactor * 2.5);
-
-        let topPos = -80;
-
-        const fallInterval = setInterval(() => {
-            if (topPos > container.clientHeight - 130) {
-                clearInterval(fallInterval);
-                if (stage.contains(bubble)) stage.removeChild(bubble);
-            } else {
-                topPos += fallSpeed;
-                bubble.style.top = topPos + 'px';
-            }
-        }, 20);
-
-        // 核心觸控處理函式（消除 300ms 延遲）
-        let handleHit = (e) => {
-            if (e.type === 'touchstart') e.preventDefault(); // 阻止滾動與預設延遲
-            
-            clearInterval(fallInterval);
-            const clickedVal = parseInt(bubble.textContent);
-
-            const rect = bubble.getBoundingClientRect();
-            const containerRect = container.getBoundingClientRect();
-
-            const bubbleX = rect.left - containerRect.left + 38; 
-            const bubbleY = rect.top - containerRect.top + 38;   
-
-            const targetLeft = bubbleX;
-            const targetBottom = containerRect.height - bubbleY - 40;
-
-            if (clickedVal === currentAnswer) {
-                monster.style.left = targetLeft + 'px';
-                monster.style.bottom = targetBottom + 'px';
-                monster.textContent = '😋';
-                monster.classList.add('monster-pounce');
-
-                if (stage.contains(bubble)) stage.removeChild(bubble);
-
-                showScorePopup(bubbleX, bubbleY, '+50', true);
-
-                score += 50;
-                correctCount += 1;
-                scoreEl.textContent = score;
-                correctCountEl.textContent = correctCount;
-                
-                meterProgress = Math.min(100, meterProgress + 3.33);
-                updateMeter();
-
-                generateQuestion();
-
-                setTimeout(() => {
-                    monster.classList.remove('monster-pounce');
-                    monster.textContent = '👾';
-                    monster.style.left = '50%';
-                    monster.style.bottom = '30px';
-                }, 400);
-
-            } else {
-                monster.textContent = '😵';
-                monster.classList.add('monster-wrong');
-
-                if (stage.contains(bubble)) stage.removeChild(bubble);
-
-                showScorePopup(bubbleX, bubbleY, '-30', false);
-
-                score = Math.max(0, score - 30);
-                scoreEl.textContent = score;
-                
-                meterProgress = Math.max(0, meterProgress - 15);
-                updateMeter();
-
-                setTimeout(() => {
-                    monster.classList.remove('monster-wrong');
-                    monster.textContent = '👾';
-                }, 400);
-            }
-        };
-
-        // 同時綁定觸摸與點擊，確保平板萬無一失
-        bubble.addEventListener('touchstart', handleHit, { passive: false });
-        bubble.addEventListener('click', handleHit);
     }
 
-    function showScorePopup(x, y, text, isPositive) {
-        const popup = document.createElement('div');
-        popup.classList.add('score-popup');
-        popup.classList.add(isPositive ? 'score-plus' : 'score-minus');
-        popup.textContent = text;
-        popup.style.left = (x - 25) + 'px';
-        popup.style.top = (y - 20) + 'px';
-        stage.appendChild(popup);
+    function generateOptions(correct) {
+        const optionsContainer = document.getElementById('options-container');
+        let choices = [correct];
 
-        setTimeout(() => {
-            if (stage.contains(popup)) stage.removeChild(popup);
-        }, 800);
+        while (choices.length < 4) {
+            let wrong = correct + (Math.floor(Math.random() * 7) - 3);
+            if (wrong > 0 && !choices.includes(wrong)) {
+                choices.push(wrong);
+            }
+        }
+
+        choices.sort(() => Math.random() - 0.5);
+
+        choices.forEach(val => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = val;
+            btn.onclick = () => checkAnswer(val);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selected) {
+        totalAttemptedCount++;
+
+        if (selected === currentAnswer) {
+            playChimeSound(true);
+            showFeedback(true);
+            score += 100;
+            correctCount++;
+            document.getElementById('score').textContent = score;
+            setTimeout(nextQuestion, 250);
+        } else {
+            playChimeSound(false);
+            showFeedback(false);
+            
+            wrongRecords.push({
+                question: currentQuestionPrompt,
+                correct: currentAnswer,
+                selected: selected
+            });
+
+            score = Math.max(0, score - 30);
+            document.getElementById('score').textContent = score;
+        }
+    }
+
+    function saveGameRecord() {
+        const record = {
+            time: gameStartTime,
+            player: currentPlayerName,
+            level: currentLevel,
+            duration: selectedDuration,
+            score: score,
+            correctCount: correctCount,
+            totalAttempted: totalAttemptedCount,
+            wrongList: wrongRecords
+        };
+        let history = JSON.parse(localStorage.getItem('kumon_scores') || '[]');
+        history.unshift(record);
+        localStorage.setItem('kumon_scores', JSON.stringify(history));
+    }
+
+    function openDatabase() {
+        populateDbPlayerSelect();
+        renderDatabaseTable();
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('db-screen').classList.remove('hidden');
+    }
+
+    function populateDbPlayerSelect() {
+        let history = JSON.parse(localStorage.getItem('kumon_scores') || '[]');
+        const select = document.getElementById('db-filter-player');
+        select.innerHTML = '';
+
+        let players = Array.from(new Set(history.map(item => item.player || '未具名')));
+        players.unshift('ALL');
+
+        players.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p;
+            opt.textContent = p === 'ALL' ? '全部玩家' : p;
+            select.appendChild(opt);
+        });
+
+        if (players.includes(currentPlayerName)) select.value = currentPlayerName;
+    }
+
+    function renderDatabaseTable() {
+        let history = JSON.parse(localStorage.getItem('kumon_scores') || '[]');
+        const selectedPlayer = document.getElementById('db-filter-player').value;
+        const selectedLevel = document.getElementById('db-filter-level').value;
+
+        const clearBtn = document.getElementById('clear-selected-btn');
+        if (clearBtn) {
+            clearBtn.textContent = selectedPlayer === 'ALL' ? '🗑️ 刪除該名玩家資料' : `🗑️ 刪除【${selectedPlayer}】資料`;
+        }
+
+        let filtered = history.filter(item => {
+            const playerMatch = (selectedPlayer === 'ALL' || item.player === selectedPlayer);
+            const levelMatch = (selectedLevel === 'ALL' || item.level === selectedLevel);
+            return playerMatch && levelMatch;
+        });
+
+        const tbody = document.getElementById('db-tbody');
+        tbody.innerHTML = '';
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="color: #94a3b8;">尚無對應歷史遊玩紀錄</td></tr>`;
+            return;
+        }
+
+        filtered.forEach(item => {
+            const tr = document.createElement('tr');
+            const wrongCount = item.wrongList ? item.wrongList.length : 0;
+            const attempted = item.totalAttempted || 0;
+            const durationTxt = item.duration ? `(${item.duration}s)` : '(60s)';
+            
+            let wrongBtnHTML = '';
+            if (wrongCount === 0) {
+                wrongBtnHTML = `<span style="color: #4ade80; font-weight:bold;">全對！🎉</span>`;
+            } else {
+                wrongBtnHTML = `<button class="view-wrong-btn" onclick="showWrongDetailByItem('${item.time}')">錯 ${wrongCount} 題 (查看)</button>`;
+            }
+
+            tr.innerHTML = `
+                <td>${item.time}</td>
+                <td style="color: #38bdf8; font-weight: bold;">${item.player || '未具名'}</td>
+                <td><span style="background: #0284c7; padding: 2px 8px; border-radius: 8px;">${item.level} 級</span></td>
+                <td style="color: #38bdf8; font-weight: bold;">${attempted} 題</td>
+                <td style="color: #fde047; font-weight: bold;">${item.score} 分 <span style="font-size:0.75rem; color:#cbd5e1;">${durationTxt}</span></td>
+                <td>${wrongBtnHTML}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function openChartScreen() {
+        populateChartPlayerSelect();
+        onChartPlayerChange();
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('chart-screen').classList.remove('hidden');
+    }
+
+    function populateChartPlayerSelect() {
+        let history = JSON.parse(localStorage.getItem('kumon_scores') || '[]');
+        const select = document.getElementById('chart-player-select');
+        select.innerHTML = '';
+
+        let players = Array.from(new Set(history.map(item => item.player || '未具名')));
+
+        players.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p;
+            opt.textContent = p;
+            select.appendChild(opt);
+        });
+
+        if (players.includes(currentPlayerName)) select.value = currentPlayerName;
+    }
+
+    function onChartPlayerChange() {
+        let history = JSON.parse(localStorage.getItem('kumon_scores') || '[]');
+        const selectedPlayer = document.getElementById('chart-player-select').value;
+        const levelSelect = document.getElementById('chart-level-select');
+
+        let playerRecords = history.filter(item => item.player === selectedPlayer);
+
+        if (playerRecords.length > 0) {
+            let levelCounts = {};
+            playerRecords.forEach(r => {
+                levelCounts[r.level] = (levelCounts[r.level] || 0) + 1;
+            });
+
+            let mostPlayedLevel = Object.keys(levelCounts).reduce((a, b) => levelCounts[a] > levelCounts[b] ? a : b);
+            levelSelect.value = mostPlayedLevel;
+        }
+
+        updateChartData();
+    }
+
+    function updateChartData() {
+        let history = JSON.parse(localStorage.getItem('kumon_scores') || '[]');
+        const selectedPlayer = document.getElementById('chart-player-select').value;
+        const selectedLevel = document.getElementById('chart-level-select').value;
+
+        let filtered = history.filter(item => {
+            return item.player === selectedPlayer && item.level === selectedLevel;
+        });
+
+        renderTrendChart(filtered);
+    }
+
+    function renderTrendChart(dataList) {
+        const canvas = document.getElementById('trend-canvas');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        ctx.clearRect(0, 0, width, height);
+
+        if (dataList.length === 0) {
+            ctx.fillStyle = "#94a3b8";
+            ctx.font = "15px Microsoft JhengHei";
+            ctx.textAlign = "center";
+            ctx.fillText("該玩家在此單一級別尚無歷史數據可畫走勢圖", width / 2, height / 2);
+            return;
+        }
+
+        let chartData = [...dataList].reverse();
+
+        const paddingLeft = 45;
+        const paddingRight = 35;
+        const paddingTop = 25;
+        const paddingBottom = 45;
+
+        const chartW = width - paddingLeft - paddingRight;
+        const chartH = height - paddingTop - paddingBottom;
+
+        const maxScoreVal = 2000;
+
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 4; i++) {
+            let y = paddingTop + (chartH / 4) * i;
+            ctx.beginPath();
+            ctx.moveTo(paddingLeft, y);
+            ctx.lineTo(width - paddingRight, y);
+            ctx.stroke();
+
+            let scoreMark = Math.round(maxScoreVal * (1 - i / 4));
+            ctx.fillStyle = "#fde047";
+            ctx.font = "11px Comic Sans MS";
+            ctx.textAlign = "right";
+            ctx.fillText(scoreMark, paddingLeft - 6, y + 4);
+        }
+
+        let normalizedScores = chartData.map(d => {
+            let duration = d.duration || 60;
+            return Math.round((d.score / duration) * 60);
+        });
+
+        drawLine(normalizedScores, maxScoreVal, "#fde047");
+        drawTimeLabels(chartData);
+
+        function drawLine(points, maxVal, color) {
+            if (points.length === 0) return;
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+
+            const stepX = points.length > 1 ? chartW / (points.length - 1) : chartW / 2;
+
+            points.forEach((val, i) => {
+                const x = points.length === 1 ? width / 2 : paddingLeft + i * stepX;
+                const y = paddingTop + chartH - (Math.min(val, maxVal) / maxVal) * chartH;
+
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            points.forEach((val, i) => {
+                const x = points.length === 1 ? width / 2 : paddingLeft + i * stepX;
+                const y = paddingTop + chartH - (Math.min(val, maxVal) / maxVal) * chartH;
+
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.font = "bold 12px Comic Sans MS";
+                ctx.textAlign = "center";
+                ctx.fillText(val, x, y - 10);
+            });
+        }
+
+        function drawTimeLabels(data) {
+            ctx.fillStyle = "#cbd5e1";
+            ctx.font = "11px Comic Sans MS, Microsoft JhengHei";
+            const stepX = data.length > 1 ? chartW / (data.length - 1) : chartW / 2;
+
+            data.forEach((item, i) => {
+                const x = data.length === 1 ? width / 2 : paddingLeft + i * stepX;
+                const y = height - 12;
+
+                let shortTime = item.time ? item.time.split(' ')[0].substring(5) + ' ' + item.time.split(' ')[1] : '';
+
+                ctx.save();
+                ctx.translate(x, y);
+                if (data.length > 5) {
+                    ctx.rotate(-Math.PI / 8); 
+                }
+                ctx.textAlign = "center";
+                ctx.fillText(shortTime, 0, 0);
+                ctx.restore();
+            });
+        }
+    }
+
+    function showWrongDetailByItem(timeStr) {
+        let history = JSON.parse(localStorage.getItem('kumon_scores') || '[]');
+        const item = history.find(i => i.time === timeStr);
+        if (!item || !item.wrongList) return;
+
+        document.getElementById('wrong-dialog-title').textContent = `🔍 【${item.player}】的錯題分析 (共 ${item.wrongList.length} 題)`;
+        const listContainer = document.getElementById('wrong-list-content');
+        listContainer.innerHTML = '';
+
+        item.wrongList.forEach((w, i) => {
+            const div = document.createElement('div');
+            div.className = 'wrong-item';
+            div.innerHTML = `
+                <div style="color: #fde047; font-weight: bold;">第 ${i+1} 題：${w.question}</div>
+                <div style="color: #cbd5e1; margin-top: 3px;">
+                    ❌ 學生選擇：<span style="color: #ef4444; font-weight: bold;">${w.selected}</span> ｜ 
+                    ✅ 正確答案：<span style="color: #4ade80; font-weight: bold;">${w.correct}</span>
+                </div>
+            `;
+            listContainer.appendChild(div);
+        });
+
+        document.getElementById('wrong-detail-dialog').classList.remove('hidden');
     }
 
     function endGame() {
         clearInterval(gameTimer);
-        clearTimeout(bubbleSpawnTimer);
-
-        document.getElementById('final-score').textContent = score;
-        document.getElementById('final-correct').textContent = correctCount;
-
-        const starsEl = document.getElementById('eval-stars');
-        const avatarEl = document.getElementById('eval-avatar');
-        const titleEl = document.getElementById('eval-title');
-        const commentEl = document.getElementById('eval-comment');
-        const resultCard = document.getElementById('result-card');
-
-        resultCard.classList.remove('result-card-gold');
-
-        if (correctCount >= 27 || meterProgress >= 100) {
-            titleEl.textContent = '🏆 傳說中的數學神童';
-            starsEl.textContent = '🌟🌟🌟';
-            avatarEl.textContent = '🥳';
-            commentEl.textContent = '「傳說級表現！你已經完美征服了這個 KUMON 級別，快去挑戰更高的級別吧！」';
-            resultCard.classList.add('result-card-gold');
-        } else if (correctCount >= 18) {
-            titleEl.textContent = '⭐️⭐️⭐️ 算術大師';
-            starsEl.textContent = '⭐⭐⭐';
-            avatarEl.textContent = '👑';
-            commentEl.textContent = '「太神啦！你的心算速度完全掌握了這個級別的重點！」';
-        } else if (correctCount >= 9) {
-            titleEl.textContent = '⭐️⭐️ 數學探險家';
-            starsEl.textContent = '⭐⭐☆';
-            avatarEl.textContent = '😎';
-            commentEl.textContent = '「太厲害了！在這個級別中表現得非常優秀喔！」';
-        } else {
-            titleEl.textContent = '⭐️ 新手小試身手';
-            starsEl.textContent = '⭐☆☆';
-            avatarEl.textContent = '👾';
-            commentEl.textContent = '「熱身完成！多練習幾次，你一定能順利晉級更高的 KUMON 級別！」';
-        }
-
+        stopSpeech();
+        saveGameRecord();
         document.getElementById('end-screen').classList.remove('hidden');
+        document.getElementById('result-desc').textContent = `【${currentPlayerName}】挑戰結束！答對 ${correctCount} 題，最終得分：${score} 分 (${selectedDuration}秒)`;
+        speak(`挑戰結束，${currentPlayerName} 獲得了 ${score} 分`);
     }
 </script>
 
